@@ -2,6 +2,23 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { indexedDBStorage } from "./indexeddb-storage";
 
+export type Frame = {
+  id: string;
+  image: string;
+  order: number;
+  caption: string;
+  description: string;
+  position: {
+    x: number;
+    y: number;
+  };
+  scale: number;
+};
+
+export type NewProject = Omit<
+  AppState["projects"][0],
+  "id" | "createdAt" | "updatedAt"
+>;
 // Define your app state interface
 export interface AppState {
   // User preferences
@@ -20,6 +37,7 @@ export interface AppState {
     id: string;
     name: string;
     description: string;
+    frames: Frame[];
     createdAt: Date;
     updatedAt: Date;
   }>;
@@ -47,7 +65,7 @@ export interface AppActions {
   // Project actions
   addProject: (
     project: Omit<AppState["projects"][0], "id" | "createdAt" | "updatedAt">
-  ) => void;
+  ) => string;
   updateProject: (
     id: string,
     updates: Partial<AppState["projects"][0]>
@@ -107,10 +125,10 @@ export const useAppStore = create<AppStore>()(
         }),
 
       // Project actions
-      addProject: (project) =>
+      addProject: (project) => {
+        const id = crypto.randomUUID();
+        const now = new Date();
         set((state) => {
-          const id = crypto.randomUUID();
-          const now = new Date();
           return {
             projects: [
               ...state.projects,
@@ -122,7 +140,10 @@ export const useAppStore = create<AppStore>()(
               },
             ],
           };
-        }),
+        });
+
+        return id;
+      },
 
       updateProject: (id, updates) =>
         set((state) => ({
