@@ -1,22 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Timelapse Project
+
+A Next.js project with global state management using Zustand and IndexedDB persistence.
+
+## Features
+
+- ✅ **Next.js 15** with App Router
+- ✅ **TypeScript** for type safety
+- ✅ **Tailwind CSS** for styling
+- ✅ **Zustand** for global state management
+- ✅ **IndexedDB** for persistent storage
+- ✅ **Full SSR/Hydration** support
+
+## Global State Management
+
+This project includes a complete global state management solution with:
+
+- **Persistent Storage**: Data survives browser restarts using IndexedDB
+- **TypeScript Support**: Fully typed store and actions
+- **Performance Optimized**: Selective subscriptions with custom selectors
+- **SSR Compatible**: Proper hydration handling for Next.js
+
+### State Structure
+
+- **Theme**: Light/dark/system theme preference
+- **UI State**: Sidebar visibility and other UI preferences
+- **User Data**: User information and authentication state
+- **Projects**: Project management with CRUD operations
+- **Settings**: Application-wide settings
+
+See [STORE_USAGE.md](./STORE_USAGE.md) for detailed usage instructions.
 
 ## Getting Started
 
-First, run the development server:
+First, install dependencies:
+
+```bash
+npm install
+```
+
+Then run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The demo page shows all store functionality with interactive examples of:
+
+- Theme switching
+- User management
+- Project CRUD operations
+- Settings management
+- Data persistence
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── layout.tsx         # Root layout with StoreProvider
+│   └── page.tsx           # Demo page
+├── components/
+│   └── StoreDemo.tsx      # Interactive demo component
+└── store/
+    ├── index.ts           # Main store definition
+    ├── indexeddb-storage.ts # IndexedDB storage adapter
+    └── provider.tsx       # React provider for hydration
+```
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
