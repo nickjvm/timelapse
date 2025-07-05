@@ -164,10 +164,11 @@ export default function Image({ id, ratio, className, editing, onReposition }: P
             </div>
             {editing && (
                 <input
+                    className="w-full mt-3"
                     type="range"
                     min=".5"
                     max="3"
-                    step=".1"
+                    step=".01"
                     value={scale.get()}
                     onChange={(e) => scale.set(parseFloat(e.target.value))}
                 />

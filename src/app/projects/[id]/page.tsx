@@ -9,15 +9,15 @@ import blobToBase64 from "@/utils/blobToBase64";
 import { PiPlayFill } from "react-icons/pi";
 import Preview from "@/components/Preview";
 import FrameImage from "@/components/Image";
-import Frame from "@/components/Frame";
+import Compare from "@/components/Compare";
 
 export default function ProjectPage() {
   const [preview, setPreview] = useState(false);
   const { id } = useParams();
   const { projects } = useAppStore();
   const project = projects.find((p) => p.id === id);
-  const [editing, setEditing] = useState<string | null>(project?.frames?.[0]?.id || null);
-
+  const [editing, setEditing] = useState<string | null>(null);
+  const [compareFrames, setCompareFrames] = useState<string[]>([])
   const { updateProject } = useAppStore();
 
   const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -77,6 +77,21 @@ export default function ProjectPage() {
     setEditing(frameId);
   }
 
+  const compare = project.frames.findIndex((frame) => frame.id === editing) - 1
+
+  const handleCompareChange = (event: ChangeEvent<HTMLInputElement>) => {
+    event.stopPropagation()
+    const frameId = event.target.value;
+    const frames = [...compareFrames];
+    if (frames.includes(frameId)) {
+      frames.splice(frames.indexOf(frameId), 1);
+    } else {
+      frames.push(frameId);
+    }
+    setCompareFrames(frames);
+
+    return false
+  }
   return (
     <div className="h-full" onClick={(e) => {
       if (e.currentTarget === e.target) {
@@ -84,10 +99,12 @@ export default function ProjectPage() {
       }
     }}>
       <div className="p-4 grid grid-cols-4 max-w-5xl mx-auto gap-2">
-        {project.frames.map((frame, i, frames) => (
-          <div onClick={() => editFrame(frame.id)} key={frame.id} className="relative">
-            <FrameImage key={frame.id} id={frame.id} ratio="aspect-[calc(3/4)]" onReposition={onReposition} alt="" editing={editing === frame.id} />
-            {editing === frame.id && frames[i - 1] && <FrameImage id={frames[i - 1].id} ratio="aspect-[calc(3/4)]" alt="" className="absolute top-0 left-0 opacity-30 pointer-events-none" />}
+        {project.frames.map((frame) => (
+          <div key={frame.id} className="relative">
+            <div onClick={() => editFrame(frame.id)} className="relative">
+              <FrameImage key={frame.id} id={frame.id} ratio="aspect-[calc(3/4)]" onReposition={onReposition} alt="" />
+            </div>
+            <input type="checkbox" value={frame.id} checked={compareFrames.includes(frame.id)} onChange={handleCompareChange} />
           </div>
         ))}
         <div className="block w-full relative shrink-0">
@@ -110,17 +127,21 @@ export default function ProjectPage() {
         <PiPlayFill /> Play
       </button>
       {preview && <Preview onClose={() => setPreview(false)} />}
-      {/* {editing && <div
-        className="fixed flex top-0 left-0 right-0 bottom-0 bg-black/90 z-30"
+      {editing && <div
+        className="fixed flex items-center justify-center w-full h-full top-0 left-0 right-0 bottom-0 bg-black/90 z-30"
         onClick={(e) => {
           if (e.currentTarget === e.target) {
             setEditing(null)
           }
         }}
       >
-        <Frame {...project.frames.find((f) => f.id === editing)!} editing />
+        <div className="relative">
+          <FrameImage id={editing} ratio="aspect-[calc(3/4)]" className="m-auto w-xl my-auto" onReposition={onReposition} alt="" editing />
+          {compare >= 0 && <FrameImage id={project.frames[compare].id} ratio="aspect-[calc(3/4)]" alt="" className="w-xl absolute top-0 left-0 opacity-30 pointer-events-none" />}
+        </div>
       </div>
-      } */}
-    </div >
+      }
+      {compareFrames.length === 2 && <Compare a={compareFrames[0]!} b={compareFrames[1]!} onClose={() => setCompareFrames([])} />}
+    </div>
   );
 }
