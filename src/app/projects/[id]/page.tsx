@@ -5,11 +5,14 @@ import { MdCloudUpload } from "react-icons/md";
 
 import { notFound, useParams } from "next/navigation";
 import { useAppStore } from "@/store";
-import blobToBase64 from "@/utils/blobToBase64";
 import { PiPlayFill } from "react-icons/pi";
 import Preview from "@/components/Preview";
 import FrameImage from "@/components/Image";
 import Compare from "@/components/Compare";
+import compressAndEncodeFile from "@/utils/compressFileUpload";
+import { RiGhost2Fill } from "react-icons/ri";
+import { FaCheck } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
 
 export default function ProjectPage() {
   const [preview, setPreview] = useState(false);
@@ -19,7 +22,7 @@ export default function ProjectPage() {
   const [editing, setEditing] = useState<string | null>(null);
   const [compareFrames, setCompareFrames] = useState<string[]>([])
   const { updateProject } = useAppStore();
-
+  const [ghost, setGhost] = useState(false)
   const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!project || !files?.length) {
@@ -32,7 +35,7 @@ export default function ProjectPage() {
     for (const file of filesArray) {
       frames.push({
         id: crypto.randomUUID(),
-        image: await blobToBase64(file),
+        image: await compressAndEncodeFile(file, 1024),
         order: project?.frames.length || 0,
         caption: "",
         description: "",
@@ -50,6 +53,24 @@ export default function ProjectPage() {
       ],
     });
   };
+
+  const handleCaptionChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (!project || !editing) {
+      return
+    }
+
+    updateProject(project.id, {
+      frames: project.frames.map((frame) => {
+        if (frame.id === editing) {
+          return {
+            ...frame,
+            caption: event.target.value,
+          };
+        }
+        return frame;
+      }),
+    });
+  }
 
   if (!project) {
     notFound();
@@ -77,7 +98,7 @@ export default function ProjectPage() {
     setEditing(frameId);
   }
 
-  const compare = project.frames.findIndex((frame) => frame.id === editing) - 1
+  const prevFrameIndex = project.frames.findIndex((frame) => frame.id === editing) - 1
 
   const handleCompareChange = (event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation()
@@ -91,6 +112,17 @@ export default function ProjectPage() {
     setCompareFrames(frames);
 
     return false
+  }
+
+  const deleteFrame = () => {
+    updateProject(project.id, {
+      frames: project.frames.filter((frame) => frame.id !== editing),
+    });
+    setEditing(null);
+  }
+
+  const toggleGhost = () => {
+    setGhost(!ghost)
   }
   return (
     <div className="h-full" onClick={(e) => {
@@ -135,9 +167,17 @@ export default function ProjectPage() {
           }
         }}
       >
-        <div className="relative">
-          <FrameImage id={editing} ratio="aspect-[calc(3/4)]" className="m-auto w-xl my-auto" onReposition={onReposition} alt="" editing />
-          {compare >= 0 && <FrameImage id={project.frames[compare].id} ratio="aspect-[calc(3/4)]" alt="" className="w-xl absolute top-0 left-0 opacity-30 pointer-events-none" />}
+        <div className="grid grid-cols-12 gap-8 max-w-3xl mx-auto">
+          <div className="relative col-span-9">
+            <FrameImage id={editing} ratio="aspect-[calc(3/4)]" className="m-auto w-xl my-auto" onReposition={onReposition} alt="" editing />
+            {ghost && prevFrameIndex >= 0 && <FrameImage id={project.frames[prevFrameIndex].id} ratio="aspect-[calc(3/4)]" alt="" className="w-xl absolute top-0 opacity-30 pointer-events-none left-1/2 -translate-x-1/2" />}
+          </div>
+          <div className="col-span-3 space-y-4 flex flex-col">
+            <button className="bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-purple-400 hover:text-white transition-colors cursor-pointer" onClick={toggleGhost}><RiGhost2Fill /> {ghost ? 'Disable' : 'Enable'} Ghost</button>
+            <button className="bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-green-600 hover:text-white transition-colors cursor-pointer" onClick={() => setEditing(null)}><FaCheck /> Done</button>
+            <input type="text" placeholder="Add a caption..." value={project.frames.find((frame) => frame.id === editing)?.caption || ""} onChange={handleCaptionChange} name="caption" className="bg-white text-black p-2 rounded w-full" />
+            <button className="mt-auto bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-red-800 hover:text-white transition-colors cursor-pointer" onClick={deleteFrame}><IoClose /> Delete</button>
+          </div>
         </div>
       </div>
       }

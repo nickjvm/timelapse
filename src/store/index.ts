@@ -104,7 +104,7 @@ const initialState: AppState = {
 // Create the store
 export const useAppStore = create<AppStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       ...initialState,
 
       // Theme actions

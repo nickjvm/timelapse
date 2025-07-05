@@ -10,6 +10,7 @@ import {
 } from "motion/react";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { HiMiniMagnifyingGlassMinus, HiMiniMagnifyingGlassPlus } from "react-icons/hi2";
 
 type Props = {
     id: string
@@ -163,15 +164,23 @@ export default function Image({ id, ratio, className, editing, onReposition }: P
                 )}
             </div>
             {editing && (
-                <input
-                    className="w-full mt-3"
-                    type="range"
-                    min=".5"
-                    max="3"
-                    step=".01"
-                    value={scale.get()}
-                    onChange={(e) => scale.set(parseFloat(e.target.value))}
-                />
+                <div className="flex items-center gap-4 mt-3">
+                    <button onClick={() => scale.set(scale.get() - .1)} className="rounded p-1 cursor-pointer text-white hover:text-black hover:bg-white transition-colors">
+                        <HiMiniMagnifyingGlassMinus className="w-8 h-8" />
+                    </button>
+                    <input
+                        type="range"
+                        min=".5"
+                        max="3"
+                        step=".01"
+                        value={scale.get()}
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                        onChange={(e) => scale.set(parseFloat(e.target.value))}
+                    />
+                    <button onClick={() => scale.set(scale.get() + .1)} className="rounded p-1 cursor-pointer text-white hover:text-black hover:bg-white transition-colors">
+                        <HiMiniMagnifyingGlassPlus className="w-8 h-8" />
+                    </button>
+                </div>
             )}
         </div>
     )
