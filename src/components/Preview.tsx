@@ -1,11 +1,11 @@
 import { AppState, useProjects } from "@/store";
-import Image from "next/image";
+// import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import Frame from "./Frame";
+import Image from "./Image";
 
 type Props = {
-    onClose: () => void
+  onClose: () => void
 }
 export default function Preview({ onClose }: Props) {
   const [index, setIndex] = useState(0);
@@ -21,30 +21,28 @@ export default function Preview({ onClose }: Props) {
   }
 
   useEffect(() => {
-      timer.current = setInterval(() => {
-          goToNext()
-      }, 500)
+    timer.current = setInterval(() => {
+      goToNext()
+    }, 1000)
 
-      return () => {
-          if (timer.current) {
-              clearTimeout(timer.current)
-          }
+    return () => {
+      if (timer.current) {
+        clearTimeout(timer.current)
       }
+    }
   }, [index])
   return (
-    <div 
-        className="fixed flex top-0 left-0 right-0 bottom-0 bg-black/90 z-30"
-        onClick={(e) => {
-            if (e.currentTarget === e.target) {
-                onClose()
-            }
-        }}
+    <div
+      className="fixed flex top-0 left-0 right-0 bottom-0 bg-black/90 z-30"
+      onClick={(e) => {
+        if (e.currentTarget === e.target) {
+          onClose()
+        }
+      }}
     >
-        <div className="m-auto">
-            <div className="scale-200">
-        <Frame key={frame.id} {...frame} size="large" editable={false} />
-            </div>
-        </div>
+      <div className="m-auto w-full max-w-md">
+        <Image id={frame.id} ratio="aspect-[calc(3/4)]" className="w-full" alt="" />
+      </div>
       {/* <div className="aspect-[calc(3/4)] max-w-3xs m-auto relative overflow-hidden shrink-0">
         <div
                     className="absolute w-full h-full z-20 pointer-events-none "
