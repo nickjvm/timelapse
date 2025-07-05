@@ -13,9 +13,11 @@ import { Frame as FrameType, useAppStore, useProjects } from "@/store";
 
 type Props = {
   comparison?: FrameType;
+  size?: 'small' | 'medium' | 'large'
+  editable?: boolean
+  editing?: boolean
 } & FrameType;
-export default function Frame({ image, id, comparison, ...frame }: Props) {
-  const [editing, setEditing] = useState(false);
+export default function Frame({ image, id, comparison, editing, ...frame }: Props) {
   const { id: projectId } = useParams();
   const projects = useProjects();
   const project = projects.find((p) => p.id === projectId);
@@ -24,8 +26,8 @@ export default function Frame({ image, id, comparison, ...frame }: Props) {
   }
   const { updateProject } = useAppStore();
 
-  const x = useMotionValue(frame.position.x || 0);
-  const y = useMotionValue(frame.position.y || 0);
+  const x = useMotionValue(frame.position.x * frame.scale || 0);
+  const y = useMotionValue(frame.position.y * frame.scale || 0);
   const scale = useMotionValue(frame.scale || 1);
 
   const controls = useAnimationControls();
@@ -46,7 +48,7 @@ export default function Frame({ image, id, comparison, ...frame }: Props) {
         if (frame.id === id) {
           return {
             ...frame,
-            position: { x: x.get(), y: y.get() },
+            position: { x: x.get() / scale.get(), y: y.get() / scale.get() },
             scale: scale.get(),
           };
         }
@@ -62,91 +64,52 @@ export default function Frame({ image, id, comparison, ...frame }: Props) {
   };
 
   useEffect(() => {
-    calculateConstraints();
+    if (containerRef.current) {
+      setConstraints({
+        top: -containerRef.current.offsetHeight / 2,
+        left: -containerRef.current.offsetWidth / 2,
+        bottom: containerRef.current.offsetHeight / 2,
+        right: containerRef.current.offsetWidth / 2,
+      });
+    }
   }, []);
 
-  useMotionValueEvent(scale, "change", calculateConstraints);
+  // useMotionValueEvent(scale, "change", calculateConstraints);
   useMotionValueEvent(x, "change", saveFramePosition);
   useMotionValueEvent(y, "change", saveFramePosition);
 
-  function calculateConstraints() {
-    if (imageRef.current && containerRef.current) {
-      const internalScale =
-        imageRef.current.offsetWidth / imageRef.current.naturalWidth;
-
-      const newWidth =
-        imageRef.current.naturalWidth * internalScale * scale.get();
-      const newHeight =
-        imageRef.current.naturalHeight * internalScale * scale.get();
-
-      const maxY =
-        newHeight > containerRef.current.offsetHeight
-          ? (newHeight - containerRef.current.offsetHeight) / 2
-          : (containerRef.current.offsetHeight - newHeight) / 2;
-      const maxX =
-        newWidth > containerRef.current.offsetWidth
-          ? (newWidth - containerRef.current.offsetWidth) / 2
-          : (containerRef.current.offsetWidth - newWidth) / 2;
-
-      if (x.get() > maxX) {
-        x.set(maxX);
-      } else if (x.get() < -maxX) {
-        x.set(-maxX);
-      }
-
-      if (y.get() > maxY) {
-        y.set(maxY);
-      } else if (y.get() < -maxY) {
-        y.set(-maxY);
-      }
-
-      setConstraints({
-        top: -maxY,
-        left: -maxX,
-        bottom: maxY,
-        right: maxX,
-      });
-    }
-  }
-
   return (
-    <div className="block w-3xs shrink-0 relative">
-      <button
-        onClick={() => setEditing(!editing)}
-        className="absolute top-2 right-2 z-10 bg-white p-1 rounded shadow"
-      >
-        {editing ? "Done" : "Edit"}
-      </button>
+    <div className="flex flex-col mx-auto w-full max-w-xl space-y-4 my-auto">
       <div
         ref={containerRef}
-        className="aspect-[calc(3/4)] max-w-3xs border border-neutral-200 shadow overflow-hidden bg-neutral-200 relative"
+        className={`aspect-[calc(3/4)] overflow-hidden bg-neutral-200 relative`}
       >
         <motion.div
-          drag
+          drag={editing}
           style={{ x, y, scale }}
           dragTransition={{
             bounceStiffness: 1000,
           }}
-          className="relative aspect-[calc(3/4)] w-full"
+          className="relative w-full"
           dragMomentum={false}
           dragElastic={0.05}
           // dragControls={dragControls}
           animate={controls}
           dragConstraints={constraints}
-          onDragStart={calculateConstraints}
         >
           <Image
             ref={imageRef}
             src={image}
             alt="Selected"
-            fill
+            width={400}
+            height={400}
             draggable={false}
-            className={`object-scale-down select-none h-auto`}
+            className={`w-full object-contain select-none h-auto`}
           />
         </motion.div>
         {editing && comparison && (
           <div
-            className="absolute w-full h-full z-20 top-0 left-0 opacity-10 pointer-events-none"
+            className="absolute w-full h-full z-20 top-0 left-0 opacity-20 pointer-events-none"
             style={{
               transform: `scale(${comparison.scale})`,
               left: comparison.position.x,
