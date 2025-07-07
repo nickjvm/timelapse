@@ -7,7 +7,6 @@ import {
   DndContext,
   closestCenter,
   KeyboardSensor,
-  PointerSensor,
   useSensor,
   useSensors,
   DragEndEvent,
@@ -30,6 +29,10 @@ import { FaCheck } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import SortableItem from "@/components/SortableItem";
 import { SmartPointerSensor } from "@/components/PointerSensor";
+import { flipImage } from "@/utils/flipImage";
+import { BsSymmetryHorizontal, BsSymmetryVertical } from "react-icons/bs";
+import Link from "next/link";
+import { FaArrowLeftLong } from "react-icons/fa6";
 
 export default function ProjectPage() {
   const [editProjectName, setEditProjectName] = useState(false)
@@ -61,12 +64,13 @@ export default function ProjectPage() {
         id: crypto.randomUUID(),
         image: await compressAndEncodeFile(file, 1024),
         order: project?.frames.length || 0,
-        caption: "",
+        caption: new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric' }).format(new Date(file.lastModified)),
         description: "",
         position: {
           x: 0,
           y: 0,
         },
+        rotation: 0,
         scale: 1,
       })
     }
@@ -100,7 +104,7 @@ export default function ProjectPage() {
     notFound();
   }
 
-  const onReposition = (x: number, y: number, scale: number) => {
+  const onReposition = (x: number, y: number, scale: number, rotation: number) => {
     updateProject(project.id, {
       frames: project.frames.map((frame) => {
         if (frame.id === editing) {
@@ -111,6 +115,7 @@ export default function ProjectPage() {
               y,
             },
             scale,
+            rotation,
           };
         }
         return frame;
@@ -126,7 +131,7 @@ export default function ProjectPage() {
   const nextFrameIndex = project.frames.findIndex((frame) => frame.id === editing) + 1
 
   const handleCompareChange = (event: ChangeEvent<HTMLInputElement>) => {
-    event.stopPropagation()
+    console.log('here')
     const frameId = event.target.value;
     const frames = [...compareFrames];
     if (frames.includes(frameId)) {
@@ -136,7 +141,7 @@ export default function ProjectPage() {
     }
     setCompareFrames(frames);
 
-    return false
+    console.log('here')
   }
 
   const deleteFrame = (frameId: string) => {
@@ -209,7 +214,22 @@ export default function ProjectPage() {
     }
   }
 
-  console.log(project.frames.map((frame) => frame.order))
+  async function handleImageFlip(direction: 'horizontal' | 'vertical') {
+    if (!project || !editing) {
+      return;
+    }
+    const frame = project.frames.find((frame) => frame.id === editing);
+    if (!frame) {
+      return;
+    }
+    const flippedImage = await flipImage(frame.image, direction);
+
+    updateProject(project.id, {
+      frames: project.frames.map((frame) =>
+        frame.id === editing ? { ...frame, image: flippedImage } : frame
+      ),
+    });
+  }
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <div className="h-full pb-36" onClick={(e) => {
@@ -219,8 +239,11 @@ export default function ProjectPage() {
       }}>
         <div className="sticky top-0 z-50 bg-white shadow w-full">
           <div className="max-w-5xl mx-auto flex items-center justify-between p-4 gap-2">
+            <Link href="/" className="inline-block mr-2">
+              <FaArrowLeftLong />
+            </Link>
             <h2 className="text-xl font-bold w-full">
-              {!editProjectName && <button onClick={toggleEditProjectName} className="group !p-0">{project.name} <MdEdit className="opacity-50 transition-opacity group-hover:opacity-100" /></button>}
+              {!editProjectName && <button onClick={toggleEditProjectName} className="group !p-0">{project.name} <MdEdit className="opacity-30 transition-opacity group-hover:opacity-100 w-5 h-5" /></button>}
               {editProjectName && <input autoFocus ref={projectNameRef} type="text" value={project.name} onChange={(e) => updateProject(project.id, { name: e.target.value })} onBlur={() => toggleEditProjectName()} className="w-full p-2 block -my-2 -ml-2" />}
             </h2>
             <button className=" bg-blue-500 text-white hover:bg-blue-800" onClick={() => setPreview(true)}>
@@ -245,7 +268,7 @@ export default function ProjectPage() {
                         <MdDelete className="w-5 h-5" />
                       </button>
                     </div>
-                    <div className="z-10 absolute bottom-0 left-0 w-full flex items-center justify-center p-2">
+                    <div className="z-10 absolute bottom-0 left-0 w-full flex items-center justify-center p-2" data-no-dnd="true">
                       <input type="checkbox" value={frame.id} checked={compareFrames.includes(frame.id)} onChange={handleCompareChange} id={`compare-${frame.id}`} className="sr-only peer" />
                       <label htmlFor={`compare-${frame.id}`} className="btn !gap-1 !py-1 !px-2 bg-white/50 rounded-lg hover:bg-white hover:text-black opacity-0 group-hover:opacity-100 peer-checked:opacity-100 peer-checked:bg-white">
                         {compareFrames.includes(frame.id) ? <MdCheck className="w-5 h-5" /> : <MdCompare className="w-5 h-5" />}
@@ -253,6 +276,7 @@ export default function ProjectPage() {
                       </label>
                     </div>
                     <FrameImage key={frame.id} id={frame.id} ratio="aspect-[calc(3/4)]" onReposition={onReposition} alt="" />
+                    {frame.caption && <div className="group-hover:opacity-0 transition-opacity absolute bottom-0 left-0 w-full flex items-center justify-center p-1 bg-black/50 text-white text-xs line-clamp-1 overflow-ellipsis">{frame.caption}</div>}
                   </div>
                 </div>
               </SortableItem>
@@ -300,6 +324,8 @@ export default function ProjectPage() {
               <div className="col-span-3 space-y-4 flex flex-col">
                 <button className="bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-purple-400 hover:text-white transition-colors cursor-pointer" onClick={toggleGhost}><RiGhost2Fill /> {ghost ? 'Disable' : 'Enable'} Ghost</button>
                 <button className="bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-green-600 hover:text-white transition-colors cursor-pointer" onClick={() => setEditing(null)}><FaCheck /> Done</button>
+                <button className="bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-green-600 hover:text-white transition-colors cursor-pointer" onClick={() => handleImageFlip("horizontal")}><BsSymmetryVertical className="w-5 h-5" /></button>
+                <button className="bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-green-600 hover:text-white transition-colors cursor-pointer" onClick={() => handleImageFlip("vertical")}><BsSymmetryHorizontal className="w-5 h-5" /></button>
                 <input type="text" placeholder="Add a caption..." value={project.frames.find((frame) => frame.id === editing)?.caption || ""} onChange={handleCaptionChange} name="caption" className="bg-white text-black p-2 rounded w-full" />
                 <button className="mt-auto bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-red-800 hover:text-white transition-colors cursor-pointer" onClick={() => deleteFrame(editing)}><IoClose /> Delete</button>
               </div>

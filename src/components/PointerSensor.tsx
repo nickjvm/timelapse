@@ -10,7 +10,6 @@ export class SmartPointerSensor extends PointerSensor {
         {
             eventName: "onPointerDown" as const,
             handler: ({ nativeEvent: event }: PointerEvent) => {
-                console.log(event.target)
                 if (
                     (event.target as HTMLElement)?.closest('[data-no-dnd="true"]') ||
                     !event.isPrimary ||

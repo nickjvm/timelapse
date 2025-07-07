@@ -11,11 +11,12 @@ import {
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { HiMiniMagnifyingGlassMinus, HiMiniMagnifyingGlassPlus } from "react-icons/hi2";
+import { MdOutlineRotateLeft, MdOutlineRotateRight } from "react-icons/md";
 
 type Props = {
     id: string
     ratio?: string
-    onReposition?: (x: number, y: number, scale: number) => void
+    onReposition?: (x: number, y: number, scale: number, rotation: number) => void
     alt: string
     editing?: boolean
 } & HTMLMotionProps<'div'>
@@ -30,6 +31,7 @@ export default function Image({ id, ratio, className, editing, onReposition }: P
     const x = useMotionValue(0)
     const y = useMotionValue(0)
     const scale = useMotionValue(1)
+    const rotation = useMotionValue(0)
 
     const imageRef = useRef<HTMLImageElement>(null)
     const [constraints, setConstraints] = useState({
@@ -85,6 +87,7 @@ export default function Image({ id, ratio, className, editing, onReposition }: P
         x.set(getPixelPosition(frame.position.x, frame.position.y).x)
         y.set(getPixelPosition(frame.position.x, frame.position.y).y)
         scale.set(frame.scale)
+        rotation.set(frame.rotation || 0)
 
         positionRef.current = frame.position
 
@@ -104,7 +107,7 @@ export default function Image({ id, ratio, className, editing, onReposition }: P
         const pixelX = x.get();
         const pixelY = y.get();
         const { xPercent, yPercent } = getPositionPercentages(pixelX, pixelY);
-        onReposition?.(xPercent, yPercent, scale.get());
+        onReposition?.(xPercent, yPercent, scale.get(), rotation.get());
     }
 
     useEffect(() => {
@@ -112,11 +115,13 @@ export default function Image({ id, ratio, className, editing, onReposition }: P
             x.destroy()
             y.destroy()
             scale.destroy()
+            rotation.destroy()
             return
         }
         x.on('change', handleReposition)
         y.on('change', handleReposition)
         scale.on('change', handleReposition)
+        rotation.on('change', handleReposition)
     }, [editing])
 
     // useEffect(() => {
@@ -138,7 +143,7 @@ export default function Image({ id, ratio, className, editing, onReposition }: P
                 {editing && (
                     <motion.div
                         drag
-                        style={{ x, y, scale }}
+                        style={{ x, y, scale, rotate: rotation }}
                         dragTransition={{
                             bounceStiffness: 1000,
                         }}
@@ -146,7 +151,6 @@ export default function Image({ id, ratio, className, editing, onReposition }: P
                         dragElastic={0.05}
                         animate={controls}
                         dragConstraints={constraints}>
-                        { }
                         <img ref={imageRef} src={frame.image} alt="" className={`w-full h-auto pointer-events-none`} />
                     </motion.div>
                 )}
@@ -155,7 +159,7 @@ export default function Image({ id, ratio, className, editing, onReposition }: P
                         src={frame.image}
                         alt=""
                         style={{
-                            transform: `scale(${frame.scale})`,
+                            transform: `scale(${frame.scale}) rotate(${frame.rotation}deg)`,
                             left: `${frame.position.x * 100}%`,
                             top: `${frame.position.y * 100}%`,
                         }}
@@ -164,23 +168,43 @@ export default function Image({ id, ratio, className, editing, onReposition }: P
                 )}
             </div>
             {editing && (
-                <div className="flex items-center gap-4 mt-3">
-                    <button onClick={() => scale.set(scale.get() - .1)} className="rounded p-1 cursor-pointer text-white hover:text-black hover:bg-white transition-colors">
-                        <HiMiniMagnifyingGlassMinus className="w-8 h-8" />
-                    </button>
-                    <input
-                        type="range"
-                        min=".5"
-                        max="3"
-                        step=".01"
-                        value={scale.get()}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
-                        onChange={(e) => scale.set(parseFloat(e.target.value))}
-                    />
-                    <button onClick={() => scale.set(scale.get() + .1)} className="rounded p-1 cursor-pointer text-white hover:text-black hover:bg-white transition-colors">
-                        <HiMiniMagnifyingGlassPlus className="w-8 h-8" />
-                    </button>
-                </div>
+                <>
+                    <div className="flex items-center gap-4 mt-3">
+                        <button onClick={() => scale.set(scale.get() - .1)} className="rounded p-1 cursor-pointer text-white hover:text-black hover:bg-white transition-colors">
+                            <HiMiniMagnifyingGlassMinus className="w-8 h-8" />
+                        </button>
+                        <input
+                            type="range"
+                            min=".5"
+                            max="3"
+                            step=".01"
+                            value={scale.get()}
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                            onChange={(e) => scale.set(parseFloat(e.target.value))}
+                        />
+                        <button onClick={() => scale.set(scale.get() + .1)} className="rounded p-1 cursor-pointer text-white hover:text-black hover:bg-white transition-colors">
+                            <HiMiniMagnifyingGlassPlus className="w-8 h-8" />
+                        </button>
+                    </div>
+
+                    <div className="flex items-center gap-4 mt-3">
+                        <button onClick={() => rotation.set(rotation.get() - 1)} className="rounded p-1 cursor-pointer text-white hover:text-black hover:bg-white transition-colors">
+                            <MdOutlineRotateLeft className="w-8 h-8" />
+                        </button>
+                        <input
+                            type="range"
+                            min="-180"
+                            max="180"
+                            step="1"
+                            value={rotation.get()}
+                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                            onChange={(e) => rotation.set(parseFloat(e.target.value))}
+                        />
+                        <button onClick={() => rotation.set(rotation.get() + 1)} className="rounded p-1 cursor-pointer text-white hover:text-black hover:bg-white transition-colors">
+                            <MdOutlineRotateRight className="w-8 h-8" />
+                        </button>
+                    </div>
+                </>
             )}
         </div>
     )

@@ -12,6 +12,7 @@ export type Frame = {
     x: number;
     y: number;
   };
+  rotation: number;
   scale: number;
 };
 
