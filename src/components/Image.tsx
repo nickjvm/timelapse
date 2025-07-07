@@ -7,6 +7,7 @@ import {
     motion,
     useAnimationControls,
     useMotionValue,
+    useMotionValueEvent,
 } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { HiMiniMagnifyingGlassMinus, HiMiniMagnifyingGlassPlus } from "react-icons/hi2";
@@ -23,6 +24,7 @@ type Props = {
     onReposition?: (x: number, y: number, scale: number, rotation: number) => void
     onDelete?: (id: string) => void
     onCaptionChange?: (caption: string) => void
+    onReset?: (id: string) => void
     alt: string
     editing?: boolean
 } & HTMLMotionProps<'div'>
@@ -36,6 +38,7 @@ export default function Image({
     onReposition,
     onDelete,
     onCaptionChange,
+    onReset,
 }: Props) {
     const [alterationType, setAlterationType] = useState<'rotate' | 'zoom' | 'caption' | null>(null);
     const [ghost, setGhost] = useState(false)
@@ -128,19 +131,24 @@ export default function Image({
         onReposition?.(xPercent, yPercent, scale.get(), rotation.get());
     }
 
-    useEffect(() => {
-        if (!editing) {
-            x.destroy()
-            y.destroy()
-            scale.destroy()
-            rotation.destroy()
-            return
-        }
-        x.on('change', handleReposition)
-        y.on('change', handleReposition)
-        scale.on('change', handleReposition)
-        rotation.on('change', handleReposition)
-    }, [editing])
+    useMotionValueEvent(x, "change", handleReposition)
+    useMotionValueEvent(y, "change", handleReposition)
+    useMotionValueEvent(scale, "change", handleReposition)
+    useMotionValueEvent(rotation, "change", handleReposition)
+    // useEffect(() => {
+    //     if (!editing) {
+    //         x.destroy()
+    //         y.destroy()
+    //         scale.destroy()
+    //         rotation.destroy()
+    //         return
+    //     }
+
+    //     x.on('change', handleReposition)
+    //     y.on('change', handleReposition)
+    //     scale.on('change', handleReposition)
+    //     rotation.on('change', handleReposition)
+    // }, [editing, frame.image])
 
     // useEffect(() => {
     //     if (!containerRef.current) {
@@ -215,6 +223,13 @@ export default function Image({
                     ghostEnabled={ghost}
                     toggleGhost={() => setGhost(!ghost)}
                     handleDelete={() => onDelete?.(id)}
+                    handleReset={() => {
+                        onReset?.(id)
+                        x.set(0)
+                        y.set(0)
+                        scale.set(1)
+                        rotation.set(0)
+                    }}
                 />
             </div>}
             <div>

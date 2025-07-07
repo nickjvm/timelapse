@@ -96,6 +96,27 @@ export default function ProjectPage() {
     });
   }
 
+  const handleReset = () => {
+    if (!project || !editing) {
+      return
+    }
+    updateProject(project.id, {
+      frames: project.frames.map((frame) => {
+        if (frame.id === editing) {
+          return {
+            ...frame,
+            position: {
+              x: 0,
+              y: 0,
+            },
+            scale: 1,
+            rotation: 0,
+          };
+        }
+        return frame;
+      }),
+    });
+  }
   if (!project) {
     notFound();
   }
@@ -268,7 +289,7 @@ export default function ProjectPage() {
                         Compare
                       </label>
                     </div>
-                    <FrameImage projectId={project.id} key={frame.id} id={frame.id} ratio="aspect-[calc(3/4)]" alt="" />
+                    <FrameImage projectId={project.id} key={frame.image} id={frame.id} ratio="aspect-[calc(3/4)]" alt="" />
                     {frame.caption && <div className="group-hover:opacity-0 transition-opacity absolute bottom-0 left-0 w-full flex items-center justify-center p-1 bg-black/50 text-white text-xs line-clamp-1 overflow-ellipsis">{frame.caption}</div>}
                   </div>
                 </div>
@@ -322,6 +343,7 @@ export default function ProjectPage() {
                   onReposition={onReposition}
                   onDelete={handleFrameDelete}
                   onCaptionChange={handleCaptionChange}
+                  onReset={handleReset}
                   alt=""
                   editing
                   projectId={project.id}

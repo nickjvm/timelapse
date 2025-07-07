@@ -5,16 +5,18 @@ import { GoGear } from 'react-icons/go'
 import { HiOutlineMagnifyingGlass } from 'react-icons/hi2'
 import { MdDelete, MdOutlineRotateLeft } from 'react-icons/md'
 import { RiGhost2Fill, RiGhost2Line } from 'react-icons/ri'
+import { RxReset } from 'react-icons/rx'
 
 type Props = {
     setAlterationType: (alterationType: 'rotate' | 'zoom') => void,
     handleImageFlip: (direction: 'horizontal' | 'vertical') => void,
     ghostEnabled: boolean,
     toggleGhost: () => void
+    handleReset: () => void
     handleDelete: () => void
 }
 
-export default function EditFrameMenu({ setAlterationType, handleImageFlip, ghostEnabled, toggleGhost, handleDelete }: Props) {
+export default function EditFrameMenu({ setAlterationType, handleImageFlip, ghostEnabled, toggleGhost, handleReset, handleDelete }: Props) {
     const menuButtonRef = useRef<HTMLButtonElement>(null)
     return (
         <Menu>
@@ -61,6 +63,11 @@ export default function EditFrameMenu({ setAlterationType, handleImageFlip, ghos
                 <MenuItem>
                     <button onClick={toggleGhost} className="hover:bg-white">
                         {ghostEnabled ? <RiGhost2Fill className="w-6 h-6" /> : <RiGhost2Line className="w-6 h-6" />}
+                    </button>
+                </MenuItem>
+                <MenuItem>
+                    <button onClick={handleReset} className="hover:bg-white hover:text-red-800">
+                        <RxReset className="w-6 h-6" />
                     </button>
                 </MenuItem>
                 <MenuItem>
