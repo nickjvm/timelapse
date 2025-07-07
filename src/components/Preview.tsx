@@ -59,7 +59,7 @@ export default function Preview({ onClose }: Props) {
   }, [onClose])
   return (
     <div
-      className="fixed flex top-0 left-0 right-0 bottom-0 bg-black/90 z-30"
+      className="fixed flex top-0 left-0 right-0 bottom-0 bg-black/90 z-50"
       onClick={(e) => {
         if (e.currentTarget === e.target) {
           onClose()
@@ -83,7 +83,7 @@ export default function Preview({ onClose }: Props) {
             ))}
           </div>
         </div>
-        <Image id={frame.id} ratio="aspect-[calc(3/4)]" className="w-full" alt="" />
+        <Image projectId={project.id} id={frame.id} ratio="aspect-[calc(3/4)]" className="w-full" alt="" />
         <p className="text-center text-white text-xl font-bold mt-2">{frame.caption || "\u00A0"}</p>
         <input type="range" min="0" max={project.frames.length - 1} step="1" value={index} onChange={(e) => {
           setIndex(Number(e.target.value))

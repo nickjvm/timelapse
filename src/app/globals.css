@@ -27,6 +27,12 @@ body {
 }
 
 button,
+label,
+a {
+  @apply cursor-pointer;
+}
+
+button,
 .btn {
-  @apply flex items-center gap-2 cursor-pointer rounded p-4 py-2 transition;
+  @apply flex items-center gap-2 rounded p-4 py-2 transition;
 }

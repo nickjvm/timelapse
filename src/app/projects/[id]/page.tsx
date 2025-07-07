@@ -42,7 +42,7 @@ export default function ProjectPage() {
   const project = projects.find((p) => p.id === id);
   const [editing, setEditing] = useState<string | null>(null);
   const [compareFrames, setCompareFrames] = useState<string[]>([])
-  const { updateProject } = useAppStore();
+  const { updateProject, deleteProject } = useAppStore();
   const [ghost, setGhost] = useState(false)
   const sensors = useSensors(
     useSensor(SmartPointerSensor),
@@ -230,6 +230,16 @@ export default function ProjectPage() {
       ),
     });
   }
+
+  function handleDelete() {
+    if (!project) {
+      return
+    }
+    if (confirm('Are you sure you want to delete this project?')) {
+      deleteProject(project.id);
+      window.location.href = '/'
+    }
+  }
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <div className="h-full pb-36" onClick={(e) => {
@@ -246,10 +256,13 @@ export default function ProjectPage() {
               {!editProjectName && <button onClick={toggleEditProjectName} className="group !p-0">{project.name} <MdEdit className="opacity-30 transition-opacity group-hover:opacity-100 w-5 h-5" /></button>}
               {editProjectName && <input autoFocus ref={projectNameRef} type="text" value={project.name} onChange={(e) => updateProject(project.id, { name: e.target.value })} onBlur={() => toggleEditProjectName()} className="w-full p-2 block -my-2 -ml-2" />}
             </h2>
+
+            <button className=" bg-white text-red-800 hover:bg-white hover:underline text-sm" onClick={handleDelete}>
+              Delete
+            </button>
             <button className=" bg-blue-500 text-white hover:bg-blue-800" onClick={() => setPreview(true)}>
               <PiPlayFill /> Play
             </button>
-            {preview && <Preview onClose={() => setPreview(false)} />}
           </div>
         </div>
         <div className="p-4 grid grid-cols-4 max-w-5xl mx-auto gap-2">
@@ -275,7 +288,7 @@ export default function ProjectPage() {
                         Compare
                       </label>
                     </div>
-                    <FrameImage key={frame.id} id={frame.id} ratio="aspect-[calc(3/4)]" onReposition={onReposition} alt="" />
+                    <FrameImage projectId={project.id} key={frame.id} id={frame.id} ratio="aspect-[calc(3/4)]" onReposition={onReposition} alt="" />
                     {frame.caption && <div className="group-hover:opacity-0 transition-opacity absolute bottom-0 left-0 w-full flex items-center justify-center p-1 bg-black/50 text-white text-xs line-clamp-1 overflow-ellipsis">{frame.caption}</div>}
                   </div>
                 </div>
@@ -318,8 +331,8 @@ export default function ProjectPage() {
             </div>
             <div className="grid grid-cols-12 gap-8 max-w-3xl mx-auto">
               <div className="relative col-span-9">
-                <FrameImage key={editing} id={editing} ratio="aspect-[calc(3/4)]" className="m-auto w-xl my-auto" onReposition={onReposition} alt="" editing />
-                {ghost && prevFrameIndex >= 0 && <FrameImage id={project.frames[prevFrameIndex].id} ratio="aspect-[calc(3/4)]" alt="" className="w-xl absolute top-0 opacity-30 pointer-events-none left-1/2 -translate-x-1/2" />}
+                <FrameImage projectId={project.id} key={editing} id={editing} ratio="aspect-[calc(3/4)]" className="m-auto w-xl my-auto" onReposition={onReposition} alt="" editing />
+                {ghost && prevFrameIndex >= 0 && <FrameImage projectId={project.id} id={project.frames[prevFrameIndex].id} ratio="aspect-[calc(3/4)]" alt="" className="w-xl absolute top-0 opacity-30 pointer-events-none left-1/2 -translate-x-1/2" />}
               </div>
               <div className="col-span-3 space-y-4 flex flex-col">
                 <button className="bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-purple-400 hover:text-white transition-colors cursor-pointer" onClick={toggleGhost}><RiGhost2Fill /> {ghost ? 'Disable' : 'Enable'} Ghost</button>
@@ -332,7 +345,7 @@ export default function ProjectPage() {
             </div>
           </div>
         }
-        {compareFrames.length === 2 && <Compare a={compareFrames[0]!} b={compareFrames[1]!} onClose={() => setCompareFrames([])} />}
+        {compareFrames.length === 2 && <Compare projectId={project.id} a={compareFrames[0]!} b={compareFrames[1]!} onClose={() => setCompareFrames([])} />}
       </div >
     </DndContext>
   );

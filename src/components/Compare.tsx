@@ -5,7 +5,7 @@ import { MdDragIndicator } from "react-icons/md";
 
 import FrameImage from "@/components/Image";
 
-export default function Compare({ a, b, onClose }: { a: string, b: string, onClose: () => void }) {
+export default function Compare({ projectId, a, b, onClose }: { projectId: string, a: string, b: string, onClose: () => void }) {
     const containerRef = useRef<HTMLDivElement>(null)
 
     const x = useMotionValue(100)
@@ -40,9 +40,9 @@ export default function Compare({ a, b, onClose }: { a: string, b: string, onClo
             <div className="flex items-center justify-center">
                 {mode === 'overlaid' && (
                     <div ref={containerRef} className="relative items-center justify-center aspect-[calc(3/4)]">
-                        <FrameImage id={b} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
+                        <FrameImage projectId={projectId} id={b} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
                         <div className="absolute top-0 left-0 overflow-hidden" style={{ width: compareWidth + 'px' }}>
-                            <FrameImage id={a} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
+                            <FrameImage projectId={projectId} id={a} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
                         </div>
                         <motion.div
                             drag
@@ -57,8 +57,8 @@ export default function Compare({ a, b, onClose }: { a: string, b: string, onClo
                 )}
                 {mode === 'side-by-side' && (
                     <div className="relative items-center justify-center flex gap-2">
-                        <FrameImage id={a} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
-                        <FrameImage id={b} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
+                        <FrameImage projectId={projectId} id={a} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
+                        <FrameImage projectId={projectId} id={b} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
                     </div>
                 )}
             </div>

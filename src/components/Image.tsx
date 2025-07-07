@@ -8,12 +8,12 @@ import {
     useAnimationControls,
     useMotionValue,
 } from "motion/react";
-import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { HiMiniMagnifyingGlassMinus, HiMiniMagnifyingGlassPlus } from "react-icons/hi2";
 import { MdOutlineRotateLeft, MdOutlineRotateRight } from "react-icons/md";
 
 type Props = {
+    projectId: string
     id: string
     ratio?: string
     onReposition?: (x: number, y: number, scale: number, rotation: number) => void
@@ -21,9 +21,8 @@ type Props = {
     editing?: boolean
 } & HTMLMotionProps<'div'>
 
-export default function Image({ id, ratio, className, editing, onReposition }: Props) {
+export default function Image({ projectId, id, ratio, className, editing, onReposition }: Props) {
     const { projects } = useAppStore()
-    const { id: projectId } = useParams()
     const project = projects.find((project) => project.id === projectId)!
     const frame = project.frames.find((frame) => frame.id === id)!
 
