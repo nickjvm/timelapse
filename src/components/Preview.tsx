@@ -46,6 +46,17 @@ export default function Preview({ onClose }: Props) {
     }
   }, [autoplay, goToNext, speed])
 
+  useEffect(() => {
+    const handleKeypress = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+      }
+    }
+    document.addEventListener('keydown', handleKeypress)
+    return () => {
+      document.removeEventListener('keydown', handleKeypress)
+    }
+  }, [onClose])
   return (
     <div
       className="fixed flex top-0 left-0 right-0 bottom-0 bg-black/90 z-30"

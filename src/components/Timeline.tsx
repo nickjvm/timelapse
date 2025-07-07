@@ -1,15 +1,14 @@
-import { AppState, useAppStore } from "@/store";
-import a from "next/navigation";
+import { useAppStore } from "@/store";
 import { useRouter } from "next/navigation";
 
 export default function Timeline() {
   const router = useRouter();
-  const { addProject, setCurrentProject } = useAppStore();
+  const { addProject } = useAppStore();
 
   const handleClick = () => {
     const newProject = {
-      name: `My Timeline ${Date.now().toLocaleString()}`,
-      description: `Description for project ${Date.now()}`,
+      name: `My Timeline ${new Date().toLocaleDateString()}`,
+      description: `Description for project ${new Date().toLocaleDateString()}`,
       frames: [],
     };
     const id = addProject(newProject);

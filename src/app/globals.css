@@ -18,8 +18,15 @@ body {
   font-family: var(--font-sans);
 }
 
-body,
 html {
   min-height: 100%;
+}
+body {
+  min-height: 100%;
   height: 100%;
+}
+
+button,
+.btn {
+  @apply flex items-center gap-2 cursor-pointer rounded p-4 py-2 transition;
 }

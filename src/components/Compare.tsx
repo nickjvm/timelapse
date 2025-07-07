@@ -32,7 +32,7 @@ export default function Compare({ a, b, onClose }: { a: string, b: string, onClo
                     onClose()
                 }
             }}
-            className="fixed w-full h-full top-0 left-0 right-0 bottom-0 bg-black/90 z-30 space-y-3 flex items-center flex-col justify-center">
+            className="fixed w-full h-full top-0 left-0 right-0 bottom-0 bg-black/90 z-50 space-y-3 flex items-center flex-col justify-center">
             <div className="flex items-center justify-center space-x-2">
                 <button className={` text-black px-2 py-1 rounded border border-white ${mode === 'side-by-side' ? 'bg-white' : 'text-white'}`} onClick={() => setMode('side-by-side')}>Side by Side</button>
                 <button className={` text-black px-2 py-1 rounded border border-white ${mode === 'overlaid' ? 'bg-white' : 'text-white'}`} onClick={() => setMode('overlaid')}>Overlaid</button>
@@ -40,9 +40,9 @@ export default function Compare({ a, b, onClose }: { a: string, b: string, onClo
             <div className="flex items-center justify-center">
                 {mode === 'overlaid' && (
                     <div ref={containerRef} className="relative items-center justify-center aspect-[calc(3/4)]">
-                        <FrameImage id={a} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
+                        <FrameImage id={b} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
                         <div className="absolute top-0 left-0 overflow-hidden" style={{ width: compareWidth + 'px' }}>
-                            <FrameImage id={b} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
+                            <FrameImage id={a} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
                         </div>
                         <motion.div
                             drag

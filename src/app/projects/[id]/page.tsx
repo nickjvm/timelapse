@@ -1,7 +1,7 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
-import { MdCloudUpload } from "react-icons/md";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { MdCheck, MdCloudUpload, MdCompare, MdDelete, MdEdit, MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 import { notFound, useParams } from "next/navigation";
 import { useAppStore } from "@/store";
@@ -15,6 +15,7 @@ import { FaCheck } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 
 export default function ProjectPage() {
+  const [editProjectName, setEditProjectName] = useState(false)
   const [preview, setPreview] = useState(false);
   const { id } = useParams();
   const { projects } = useAppStore();
@@ -99,6 +100,7 @@ export default function ProjectPage() {
   }
 
   const prevFrameIndex = project.frames.findIndex((frame) => frame.id === editing) - 1
+  const nextFrameIndex = project.frames.findIndex((frame) => frame.id === editing) + 1
 
   const handleCompareChange = (event: ChangeEvent<HTMLInputElement>) => {
     event.stopPropagation()
@@ -114,9 +116,9 @@ export default function ProjectPage() {
     return false
   }
 
-  const deleteFrame = () => {
+  const deleteFrame = (frameId: string) => {
     updateProject(project.id, {
-      frames: project.frames.filter((frame) => frame.id !== editing),
+      frames: project.frames.filter((frame) => frame.id !== frameId),
     });
     setEditing(null);
   }
@@ -124,19 +126,93 @@ export default function ProjectPage() {
   const toggleGhost = () => {
     setGhost(!ghost)
   }
+
+  function toggleEditProjectName() {
+    setEditProjectName(!editProjectName)
+  }
+
+  const projectNameRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const handleKeypress = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        if (prevFrameIndex >= 0) {
+          setEditing(project.frames[prevFrameIndex].id)
+        }
+      }
+      if (e.key === 'ArrowRight') {
+        if (nextFrameIndex < project.frames.length) {
+          setEditing(project.frames[nextFrameIndex].id)
+        }
+      }
+      if (e.key === 'Escape') {
+        setEditing(null)
+      }
+    }
+    if (editing) {
+      document.removeEventListener('keydown', handleKeypress)
+      document.addEventListener('keydown', handleKeypress)
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeypress)
+    }
+  }, [editing, nextFrameIndex, prevFrameIndex, project.frames])
+
+  useEffect(() => {
+    const handleKeypress = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setCompareFrames([])
+      }
+    }
+    if (compareFrames.length > 1) {
+      document.addEventListener('keydown', handleKeypress)
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeypress)
+    }
+  }, [compareFrames])
+
   return (
-    <div className="h-full" onClick={(e) => {
+    <div className="h-full pb-36" onClick={(e) => {
       if (e.currentTarget === e.target) {
         setEditing(null)
       }
     }}>
+      <div className="sticky top-0 z-50 bg-white shadow w-full">
+        <div className="max-w-5xl mx-auto flex items-center justify-between p-4 gap-2">
+          <h2 className="text-xl font-bold w-full">
+            {!editProjectName && <button onClick={toggleEditProjectName} className="group !p-0">{project.name} <MdEdit className="opacity-50 transition-opacity group-hover:opacity-100" /></button>}
+            {editProjectName && <input autoFocus ref={projectNameRef} type="text" value={project.name} onChange={(e) => updateProject(project.id, { name: e.target.value })} onBlur={() => toggleEditProjectName()} className="w-full p-2 block -my-2 -ml-2" />}
+          </h2>
+          <button className=" bg-blue-500 text-white hover:bg-blue-800" onClick={() => setPreview(true)}>
+            <PiPlayFill /> Play
+          </button>
+          {preview && <Preview onClose={() => setPreview(false)} />}
+        </div>
+      </div>
       <div className="p-4 grid grid-cols-4 max-w-5xl mx-auto gap-2">
         {project.frames.map((frame) => (
           <div key={frame.id} className="relative">
-            <div onClick={() => editFrame(frame.id)} className="relative">
+            <div className="relative group">
+              <div className="z-10 absolute top-0 left-0 w-full flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity p-2">
+                <button onClick={() => editFrame(frame.id)} className="!gap-1 !py-1 !px-2 bg-white/50 rounded-lg hover:bg-white">
+                  <MdEdit className="w-5 h-5" />
+                  Edit
+                </button>
+                <button onClick={() => deleteFrame(frame.id)} className="!gap-1 !py-1 !px-2 text-red-800 bg-white/50 rounded-lg hover:bg-red-800 hover:text-white">
+                  Delete
+                  <MdDelete className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="z-10 absolute bottom-0 left-0 w-full flex items-center justify-center p-2">
+                <input type="checkbox" value={frame.id} checked={compareFrames.includes(frame.id)} onChange={handleCompareChange} id={`compare-${frame.id}`} className="sr-only peer" />
+                <label htmlFor={`compare-${frame.id}`} className="btn !gap-1 !py-1 !px-2 bg-white/50 rounded-lg hover:bg-white hover:text-black opacity-0 group-hover:opacity-100 peer-checked:opacity-100 peer-checked:bg-white">
+                  {compareFrames.includes(frame.id) ? <MdCheck className="w-5 h-5" /> : <MdCompare className="w-5 h-5" />}
+                  Compare
+                </label>
+              </div>
               <FrameImage key={frame.id} id={frame.id} ratio="aspect-[calc(3/4)]" onReposition={onReposition} alt="" />
             </div>
-            <input type="checkbox" value={frame.id} checked={compareFrames.includes(frame.id)} onChange={handleCompareChange} />
           </div>
         ))}
         <div className="block w-full relative shrink-0">
@@ -155,33 +231,39 @@ export default function ProjectPage() {
           </label>
         </div>
       </div>
-      <button className="p-4 py-2 bg-blue-500 text-white rounded flex gap-2 items-center" onClick={() => setPreview(true)}>
-        <PiPlayFill /> Play
-      </button>
       {preview && <Preview onClose={() => setPreview(false)} />}
-      {editing && <div
-        className="fixed flex items-center justify-center w-full h-full top-0 left-0 right-0 bottom-0 bg-black/90 z-30"
-        onClick={(e) => {
-          if (e.currentTarget === e.target) {
-            setEditing(null)
-          }
-        }}
-      >
-        <div className="grid grid-cols-12 gap-8 max-w-3xl mx-auto">
-          <div className="relative col-span-9">
-            <FrameImage id={editing} ratio="aspect-[calc(3/4)]" className="m-auto w-xl my-auto" onReposition={onReposition} alt="" editing />
-            {ghost && prevFrameIndex >= 0 && <FrameImage id={project.frames[prevFrameIndex].id} ratio="aspect-[calc(3/4)]" alt="" className="w-xl absolute top-0 opacity-30 pointer-events-none left-1/2 -translate-x-1/2" />}
+      {
+        editing && <div
+          className="fixed flex items-center justify-center w-full h-full top-0 left-0 right-0 bottom-0 bg-black/90 z-50"
+          onClick={(e) => {
+            if (e.currentTarget === e.target) {
+              setEditing(null)
+            }
+          }}
+        >
+          <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex items-center px-2 pointer-events-none">
+            {prevFrameIndex >= 0 && <button className="bg-white/50 h-12 !px-1 hover:bg-white pointer-events-auto mr-auto" onClick={() => setEditing(project.frames[prevFrameIndex].id)}>
+              <MdKeyboardArrowLeft className="h-8 w-8" />
+            </button>}
+            {nextFrameIndex < project.frames.length && <button className="bg-white/50 h-12 !px-1 hover:bg-white pointer-events-auto ml-auto" onClick={() => setEditing(project.frames[nextFrameIndex].id)}>
+              <MdKeyboardArrowRight className="h-8 w-8" />
+            </button>}
           </div>
-          <div className="col-span-3 space-y-4 flex flex-col">
-            <button className="bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-purple-400 hover:text-white transition-colors cursor-pointer" onClick={toggleGhost}><RiGhost2Fill /> {ghost ? 'Disable' : 'Enable'} Ghost</button>
-            <button className="bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-green-600 hover:text-white transition-colors cursor-pointer" onClick={() => setEditing(null)}><FaCheck /> Done</button>
-            <input type="text" placeholder="Add a caption..." value={project.frames.find((frame) => frame.id === editing)?.caption || ""} onChange={handleCaptionChange} name="caption" className="bg-white text-black p-2 rounded w-full" />
-            <button className="mt-auto bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-red-800 hover:text-white transition-colors cursor-pointer" onClick={deleteFrame}><IoClose /> Delete</button>
+          <div className="grid grid-cols-12 gap-8 max-w-3xl mx-auto">
+            <div className="relative col-span-9">
+              <FrameImage key={editing} id={editing} ratio="aspect-[calc(3/4)]" className="m-auto w-xl my-auto" onReposition={onReposition} alt="" editing />
+              {ghost && prevFrameIndex >= 0 && <FrameImage id={project.frames[prevFrameIndex].id} ratio="aspect-[calc(3/4)]" alt="" className="w-xl absolute top-0 opacity-30 pointer-events-none left-1/2 -translate-x-1/2" />}
+            </div>
+            <div className="col-span-3 space-y-4 flex flex-col">
+              <button className="bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-purple-400 hover:text-white transition-colors cursor-pointer" onClick={toggleGhost}><RiGhost2Fill /> {ghost ? 'Disable' : 'Enable'} Ghost</button>
+              <button className="bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-green-600 hover:text-white transition-colors cursor-pointer" onClick={() => setEditing(null)}><FaCheck /> Done</button>
+              <input type="text" placeholder="Add a caption..." value={project.frames.find((frame) => frame.id === editing)?.caption || ""} onChange={handleCaptionChange} name="caption" className="bg-white text-black p-2 rounded w-full" />
+              <button className="mt-auto bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-red-800 hover:text-white transition-colors cursor-pointer" onClick={() => deleteFrame(editing)}><IoClose /> Delete</button>
+            </div>
           </div>
         </div>
-      </div>
       }
       {compareFrames.length === 2 && <Compare a={compareFrames[0]!} b={compareFrames[1]!} onClose={() => setCompareFrames([])} />}
-    </div>
+    </div >
   );
 }
