@@ -10,19 +10,28 @@ type Props = {
 }
 
 export default function Preview({ onClose }: Props) {
-  const [index, setIndex] = useState(0);
   const [autoplay, setAutoplay] = useState(true)
   const { playbackSpeed } = useSettings()
   const { updateSettings } = useAppStore()
   const { id } = useParams();
   const projects = useProjects();
   const project = projects.find((p) => p.id === id) as AppState["projects"][0];
+  const startingIndex = project.frames.findIndex((frame) => !frame.hidden)
+  const [index, setIndex] = useState(startingIndex);
   const frame = project.frames[index];
 
+  const visibleFrames = project.frames.filter((frame) => !frame.hidden)
   const timer = useRef<NodeJS.Timeout>(null);
 
   const goToNext = useCallback(() => {
-    setIndex(index + 1 >= project?.frames.length ? 0 : index + 1)
+    const findNextIndex = () => {
+      const nextIndex = index + 1 >= project?.frames.length ? 0 : index + 1
+      if (project?.frames[nextIndex].hidden) {
+        return findNextIndex()
+      }
+      return nextIndex
+    }
+    setIndex(findNextIndex())
   }, [index, project])
 
   useEffect(() => {
@@ -90,7 +99,7 @@ export default function Preview({ onClose }: Props) {
         </div>
         <Image projectId={project.id} id={frame.id} ratio="aspect-[calc(3/4)]" className="w-full" alt="" />
         <p className="text-center text-white text-xl font-bold mt-2">{frame.caption || "\u00A0"}</p>
-        <input type="range" min="0" max={project.frames.length - 1} step="1" value={index} onChange={(e) => {
+        <input type="range" min={startingIndex} max={visibleFrames.length - 1} step="1" value={index} onChange={(e) => {
           setIndex(Number(e.target.value))
           setAutoplay(false)
           if (timer.current) {

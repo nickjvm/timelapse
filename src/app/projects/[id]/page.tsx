@@ -27,8 +27,9 @@ import compressAndEncodeFile from "@/utils/compressFileUpload";
 import SortableItem from "@/components/SortableItem";
 import { SmartPointerSensor } from "@/components/PointerSensor";
 import Link from "next/link";
-import { FaArrowLeftLong } from "react-icons/fa6";
+import { FaArrowLeftLong, FaEyeSlash } from "react-icons/fa6";
 import { RiCloseLargeLine } from "react-icons/ri";
+import cn from "@/utils/cn";
 
 export default function ProjectPage() {
   const [editProjectName, setEditProjectName] = useState(false)
@@ -62,6 +63,7 @@ export default function ProjectPage() {
         order: project?.frames.length || 0,
         caption: new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric' }).format(new Date(file.lastModified)),
         description: "",
+        hidden: false,
         position: {
           x: 0,
           y: 0,
@@ -270,8 +272,9 @@ export default function ProjectPage() {
           <SortableContext items={project.frames}>
             {project.frames.map((frame) => (
               <SortableItem key={frame.id} id={frame.id}>
-                <div key={frame.id} className="relative">
+                <div key={frame.id} className={cn('relative', frame.hidden && 'opacity-50')}>
                   <div className="relative group">
+                    {frame.hidden && <FaEyeSlash className="absolute top-1/2 left-1/2 -translate-1/2 w-8 h-8 text-black z-10" />}
                     <div className="z-10 absolute top-0 left-0 w-full flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity p-2" data-no-dnd="true">
                       <button onClick={() => editFrame(frame.id)} className="!gap-1 !py-1 !px-2 bg-white/50 rounded-lg hover:bg-white">
                         <MdEdit className="w-5 h-5" />

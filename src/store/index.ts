@@ -8,6 +8,7 @@ export type Frame = {
   order: number;
   caption: string;
   description: string;
+  hidden: boolean;
   position: {
     x: number;
     y: number;

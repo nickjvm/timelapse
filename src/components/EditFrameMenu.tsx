@@ -6,7 +6,8 @@ import { HiOutlineMagnifyingGlass } from 'react-icons/hi2'
 import { MdDelete, MdOutlineRotateLeft } from 'react-icons/md'
 import { RiGhost2Fill, RiGhost2Line } from 'react-icons/ri'
 import { RxReset } from 'react-icons/rx'
-import { useAppStore, useSettings } from '../store'
+import { useAppStore, useProjects, useSettings } from '../store'
+import { FaEye, FaEyeSlash } from 'react-icons/fa6'
 
 type Props = {
     setAlterationType: (alterationType: 'rotate' | 'zoom') => void,
@@ -24,8 +25,12 @@ export default function EditFrameMenu({
     frameId,
 }: Props) {
     const settings = useSettings()
-    const { updateSettings, deleteFrame } = useAppStore()
+    const projects = useProjects()
+
+    const { updateSettings, deleteFrame, updateFrame } = useAppStore()
     const menuButtonRef = useRef<HTMLButtonElement>(null)
+    const project = projects.find(project => project.id === projectId)
+    const frame = project?.frames.find(frame => frame.id === frameId)
 
     return (
         <Menu>
@@ -77,6 +82,11 @@ export default function EditFrameMenu({
                 <MenuItem>
                     <button onClick={handleReset} className="hover:bg-white hover:text-red-800">
                         <RxReset className="w-6 h-6" />
+                    </button>
+                </MenuItem>
+                <MenuItem>
+                    <button onClick={() => updateFrame(projectId, frameId, { hidden: !frame?.hidden })} className="hover:bg-white">
+                        {frame?.hidden ? <FaEye className="w-6 h-6" /> : <FaEyeSlash className="w-6 h-6" />}
                     </button>
                 </MenuItem>
                 <MenuItem>
