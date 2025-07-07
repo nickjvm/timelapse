@@ -1,4 +1,4 @@
-import { AppState, useProjects } from "@/store";
+import { AppState, useProjects, useSettings, useAppStore, PLAYBACK_SPEEDS } from "@/store";
 // import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -9,16 +9,11 @@ type Props = {
   onClose: () => void
 }
 
-const speeds = {
-  '1x': 1000,
-  '2x': 500,
-  '3x': 250,
-}
-
 export default function Preview({ onClose }: Props) {
   const [index, setIndex] = useState(0);
   const [autoplay, setAutoplay] = useState(true)
-  const [speed, setSpeed] = useState('1x')
+  const { playbackSpeed } = useSettings()
+  const { updateSettings } = useAppStore()
   const { id } = useParams();
   const projects = useProjects();
   const project = projects.find((p) => p.id === id) as AppState["projects"][0];
@@ -32,7 +27,7 @@ export default function Preview({ onClose }: Props) {
 
   useEffect(() => {
     if (autoplay) {
-      timer.current = setInterval(goToNext, speeds[speed as keyof typeof speeds])
+      timer.current = setInterval(goToNext, PLAYBACK_SPEEDS[playbackSpeed])
     } else {
       if (timer.current) {
         clearInterval(timer.current)
@@ -44,7 +39,7 @@ export default function Preview({ onClose }: Props) {
         clearTimeout(timer.current)
       }
     }
-  }, [autoplay, goToNext, speed])
+  }, [autoplay, goToNext, playbackSpeed])
 
   useEffect(() => {
     const handleKeypress = (e: KeyboardEvent) => {
@@ -75,9 +70,19 @@ export default function Preview({ onClose }: Props) {
             }
           </div>
           <div className="ml-auto flex gap-2">
-            {['1x', '2x', '3x'].map((value) => (
-              <label key={value} className={`flex gap-2 items-center cursor-pointer border rounded px-2 ${value === speed ? 'bg-white text-black' : 'text-white'}`}>
-                <input type="radio" name="speed" value={value} checked={value === speed} onChange={(e) => setSpeed(e.target.value)} className="hidden" />
+            {Object.keys(PLAYBACK_SPEEDS).map((value) => (
+              <label key={value} className={`flex gap-2 items-center cursor-pointer border rounded px-2 ${value === playbackSpeed ? 'bg-white text-black' : 'text-white'}`}>
+                <input
+                  type="radio"
+                  name="speed"
+                  value={value}
+                  checked={value === playbackSpeed}
+                  className="hidden"
+                  onChange={(e) => {
+                    setAutoplay(true);
+                    updateSettings({ playbackSpeed: e.target.value as keyof typeof PLAYBACK_SPEEDS })
+                  }}
+                />
                 {value}
               </label>
             ))}

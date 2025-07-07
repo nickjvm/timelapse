@@ -1,23 +1,20 @@
 import { openDB, DBSchema, IDBPDatabase } from "idb";
 
-// Define the database schema
 interface AppDB extends DBSchema {
   "app-store": {
     key: string;
-    value: any;
+    value: unknown;
   };
 }
 
-// Database name and version
 const DB_NAME = "timelapse-app-db";
 const DB_VERSION = 1;
 const STORE_NAME = "app-store";
-
-// Initialize the database
 let dbPromise: Promise<IDBPDatabase<AppDB>>;
+const isBrowser = typeof window !== 'undefined';
 
 const initDB = () => {
-  if (!dbPromise) {
+  if (isBrowser && !dbPromise) {
     dbPromise = openDB<AppDB>(DB_NAME, DB_VERSION, {
       upgrade(db) {
         if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -29,9 +26,9 @@ const initDB = () => {
   return dbPromise;
 };
 
-// Storage interface that Zustand expects
 export const indexedDBStorage = {
   getItem: async (name: string): Promise<string | null> => {
+    if (!isBrowser) return null;
     try {
       const db = await initDB();
       const value = await db.get(STORE_NAME, name);
@@ -43,6 +40,7 @@ export const indexedDBStorage = {
   },
 
   setItem: async (name: string, value: string): Promise<void> => {
+    if (!isBrowser) return;
     try {
       const db = await initDB();
       await db.put(STORE_NAME, JSON.parse(value), name);
@@ -52,6 +50,7 @@ export const indexedDBStorage = {
   },
 
   removeItem: async (name: string): Promise<void> => {
+    if (!isBrowser) return;
     try {
       const db = await initDB();
       await db.delete(STORE_NAME, name);
@@ -61,8 +60,8 @@ export const indexedDBStorage = {
   },
 };
 
-// Utility functions for manual IndexedDB operations
 export const clearAllData = async (): Promise<void> => {
+  if (!isBrowser) return;
   try {
     const db = await initDB();
     await db.clear(STORE_NAME);
@@ -72,6 +71,7 @@ export const clearAllData = async (): Promise<void> => {
 };
 
 export const getAllKeys = async (): Promise<string[]> => {
+  if (!isBrowser) return [];
   try {
     const db = await initDB();
     return await db.getAllKeys(STORE_NAME);

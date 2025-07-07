@@ -6,18 +6,27 @@ import { HiOutlineMagnifyingGlass } from 'react-icons/hi2'
 import { MdDelete, MdOutlineRotateLeft } from 'react-icons/md'
 import { RiGhost2Fill, RiGhost2Line } from 'react-icons/ri'
 import { RxReset } from 'react-icons/rx'
+import { useAppStore, useSettings } from '../store'
 
 type Props = {
     setAlterationType: (alterationType: 'rotate' | 'zoom') => void,
     handleImageFlip: (direction: 'horizontal' | 'vertical') => void,
-    ghostEnabled: boolean,
-    toggleGhost: () => void
-    handleReset: () => void
-    handleDelete: () => void
+    handleReset: () => void,
+    projectId: string;
+    frameId: string;
 }
 
-export default function EditFrameMenu({ setAlterationType, handleImageFlip, ghostEnabled, toggleGhost, handleReset, handleDelete }: Props) {
+export default function EditFrameMenu({
+    setAlterationType,
+    handleImageFlip,
+    handleReset,
+    projectId,
+    frameId,
+}: Props) {
+    const settings = useSettings()
+    const { updateSettings, deleteFrame } = useAppStore()
     const menuButtonRef = useRef<HTMLButtonElement>(null)
+
     return (
         <Menu>
             <MenuButton ref={menuButtonRef} className="z-60 border border-white bg-white/50 !rounded-full !p-3 hover:bg-white/75 transition-colors">
@@ -61,8 +70,8 @@ export default function EditFrameMenu({ setAlterationType, handleImageFlip, ghos
                     </button>
                 </MenuItem>
                 <MenuItem>
-                    <button onClick={toggleGhost} className="hover:bg-white">
-                        {ghostEnabled ? <RiGhost2Fill className="w-6 h-6" /> : <RiGhost2Line className="w-6 h-6" />}
+                    <button onClick={() => updateSettings({ ghost: !settings.ghost })} className="hover:bg-white">
+                        {settings.ghost ? <RiGhost2Fill className="w-6 h-6" /> : <RiGhost2Line className="w-6 h-6" />}
                     </button>
                 </MenuItem>
                 <MenuItem>
@@ -71,7 +80,7 @@ export default function EditFrameMenu({ setAlterationType, handleImageFlip, ghos
                     </button>
                 </MenuItem>
                 <MenuItem>
-                    <button onClick={handleDelete} className="hover:bg-white hover:text-red-800">
+                    <button onClick={() => deleteFrame(projectId, frameId)} className="hover:bg-white hover:text-red-800">
                         <MdDelete className="w-6 h-6" />
                     </button>
                 </MenuItem>

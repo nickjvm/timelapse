@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client'
 
-import { useAppStore } from "@/store";
+import { useAppStore, useSettings } from "@/store";
 import {
     HTMLMotionProps,
     motion,
@@ -36,13 +36,13 @@ export default function Image({
     className,
     editing,
     onReposition,
-    onDelete,
     onCaptionChange,
     onReset,
 }: Props) {
     const [alterationType, setAlterationType] = useState<'rotate' | 'zoom' | 'caption' | null>(null);
-    const [ghost, setGhost] = useState(false)
-    const { projects, updateProject } = useAppStore()
+    const { projects, updateFrame } = useAppStore()
+    const settings = useSettings()
+
     const project = projects.find((project) => project.id === projectId)!
     const frame = project.frames.find((frame) => frame.id === id)!
 
@@ -173,10 +173,8 @@ export default function Image({
         }
         const flippedImage = await flipImage(frame.image, direction);
 
-        updateProject(project.id, {
-            frames: project.frames.map((frame) =>
-                frame.id === id ? { ...frame, image: flippedImage } : frame
-            ),
+        updateFrame(project.id, id, {
+            image: flippedImage,
         });
     }
     return (
@@ -208,7 +206,7 @@ export default function Image({
                         className={`w-full h-auto pointer-events-none relative origin-center`}
                     />
                 )}
-                {ghost && prevFrameIndex >= 0 && <Image projectId={project.id} id={project.frames[prevFrameIndex].id} ratio="aspect-[calc(3/4)]" alt="" className="w-full absolute top-0 opacity-30 pointer-events-none left-1/2 -translate-x-1/2" />}
+                {editing && settings.ghost && prevFrameIndex >= 0 && <Image projectId={project.id} id={project.frames[prevFrameIndex].id} ratio="aspect-[calc(3/4)]" alt="" className="w-full absolute top-0 opacity-30 pointer-events-none left-1/2 -translate-x-1/2" />}
             </div>
             {editing && <div className="absolute right-2 top-2">
                 <EditFrameMenu
@@ -220,9 +218,8 @@ export default function Image({
                         }
                     }}
                     handleImageFlip={handleImageFlip}
-                    ghostEnabled={ghost}
-                    toggleGhost={() => setGhost(!ghost)}
-                    handleDelete={() => onDelete?.(id)}
+                    projectId={project.id}
+                    frameId={id}
                     handleReset={() => {
                         onReset?.(id)
                         x.set(0)
