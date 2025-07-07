@@ -24,15 +24,11 @@ import Preview from "@/components/Preview";
 import FrameImage from "@/components/Image";
 import Compare from "@/components/Compare";
 import compressAndEncodeFile from "@/utils/compressFileUpload";
-import { RiGhost2Fill } from "react-icons/ri";
-import { FaCheck } from "react-icons/fa";
-import { IoClose } from "react-icons/io5";
 import SortableItem from "@/components/SortableItem";
 import { SmartPointerSensor } from "@/components/PointerSensor";
-import { flipImage } from "@/utils/flipImage";
-import { BsSymmetryHorizontal, BsSymmetryVertical } from "react-icons/bs";
 import Link from "next/link";
 import { FaArrowLeftLong } from "react-icons/fa6";
+import { RiCloseLargeLine } from "react-icons/ri";
 
 export default function ProjectPage() {
   const [editProjectName, setEditProjectName] = useState(false)
@@ -43,7 +39,7 @@ export default function ProjectPage() {
   const [editing, setEditing] = useState<string | null>(null);
   const [compareFrames, setCompareFrames] = useState<string[]>([])
   const { updateProject, deleteProject } = useAppStore();
-  const [ghost, setGhost] = useState(false)
+
   const sensors = useSensors(
     useSensor(SmartPointerSensor),
     useSensor(KeyboardSensor, {
@@ -82,7 +78,7 @@ export default function ProjectPage() {
     });
   };
 
-  const handleCaptionChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleCaptionChange = (caption: string) => {
     if (!project || !editing) {
       return
     }
@@ -92,7 +88,7 @@ export default function ProjectPage() {
         if (frame.id === editing) {
           return {
             ...frame,
-            caption: event.target.value,
+            caption,
           };
         }
         return frame;
@@ -131,7 +127,6 @@ export default function ProjectPage() {
   const nextFrameIndex = project.frames.findIndex((frame) => frame.id === editing) + 1
 
   const handleCompareChange = (event: ChangeEvent<HTMLInputElement>) => {
-    console.log('here')
     const frameId = event.target.value;
     const frames = [...compareFrames];
     if (frames.includes(frameId)) {
@@ -142,17 +137,6 @@ export default function ProjectPage() {
     setCompareFrames(frames);
 
     console.log('here')
-  }
-
-  const deleteFrame = (frameId: string) => {
-    updateProject(project.id, {
-      frames: project.frames.filter((frame) => frame.id !== frameId),
-    });
-    setEditing(null);
-  }
-
-  const toggleGhost = () => {
-    setGhost(!ghost)
   }
 
   function toggleEditProjectName() {
@@ -214,23 +198,6 @@ export default function ProjectPage() {
     }
   }
 
-  async function handleImageFlip(direction: 'horizontal' | 'vertical') {
-    if (!project || !editing) {
-      return;
-    }
-    const frame = project.frames.find((frame) => frame.id === editing);
-    if (!frame) {
-      return;
-    }
-    const flippedImage = await flipImage(frame.image, direction);
-
-    updateProject(project.id, {
-      frames: project.frames.map((frame) =>
-        frame.id === editing ? { ...frame, image: flippedImage } : frame
-      ),
-    });
-  }
-
   function handleDelete() {
     if (!project) {
       return
@@ -240,6 +207,19 @@ export default function ProjectPage() {
       window.location.href = '/'
     }
   }
+
+  function handleFrameDelete(id: string) {
+    if (!project) {
+      return
+    }
+    if (confirm('Are you sure you want to delete this frame?')) {
+      updateProject(project.id, {
+        frames: project.frames.filter((frame) => frame.id !== id),
+      });
+      setEditing(null)
+    }
+  }
+
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <div className="h-full pb-36" onClick={(e) => {
@@ -276,7 +256,7 @@ export default function ProjectPage() {
                         <MdEdit className="w-5 h-5" />
                         Edit
                       </button>
-                      <button onClick={() => deleteFrame(frame.id)} className="!gap-1 !py-1 !px-2 text-red-800 bg-white/50 rounded-lg hover:bg-red-800 hover:text-white">
+                      <button onClick={() => handleFrameDelete(frame.id)} className="!gap-1 !py-1 !px-2 text-red-800 bg-white/50 rounded-lg hover:bg-red-800 hover:text-white">
                         Delete
                         <MdDelete className="w-5 h-5" />
                       </button>
@@ -288,7 +268,7 @@ export default function ProjectPage() {
                         Compare
                       </label>
                     </div>
-                    <FrameImage projectId={project.id} key={frame.id} id={frame.id} ratio="aspect-[calc(3/4)]" onReposition={onReposition} alt="" />
+                    <FrameImage projectId={project.id} key={frame.id} id={frame.id} ratio="aspect-[calc(3/4)]" alt="" />
                     {frame.caption && <div className="group-hover:opacity-0 transition-opacity absolute bottom-0 left-0 w-full flex items-center justify-center p-1 bg-black/50 text-white text-xs line-clamp-1 overflow-ellipsis">{frame.caption}</div>}
                   </div>
                 </div>
@@ -321,6 +301,9 @@ export default function ProjectPage() {
               }
             }}
           >
+            <button className="absolute top-2 right-2 text-white hover:bg-white hover:text-black transform-colors !p-2">
+              <RiCloseLargeLine className="w-5 h-5" onClick={() => setEditing(null)} />
+            </button>
             <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex items-center px-2 pointer-events-none">
               {prevFrameIndex >= 0 && <button className="bg-white/50 h-12 !px-1 hover:bg-white pointer-events-auto mr-auto" onClick={() => setEditing(project.frames[prevFrameIndex].id)}>
                 <MdKeyboardArrowLeft className="h-8 w-8" />
@@ -329,18 +312,20 @@ export default function ProjectPage() {
                 <MdKeyboardArrowRight className="h-8 w-8" />
               </button>}
             </div>
-            <div className="grid grid-cols-12 gap-8 max-w-3xl mx-auto">
+            <div className="grid grid-cols-9 gap-8 max-w-3xl mx-auto">
               <div className="relative col-span-9">
-                <FrameImage projectId={project.id} key={editing} id={editing} ratio="aspect-[calc(3/4)]" className="m-auto w-xl my-auto" onReposition={onReposition} alt="" editing />
-                {ghost && prevFrameIndex >= 0 && <FrameImage projectId={project.id} id={project.frames[prevFrameIndex].id} ratio="aspect-[calc(3/4)]" alt="" className="w-xl absolute top-0 opacity-30 pointer-events-none left-1/2 -translate-x-1/2" />}
-              </div>
-              <div className="col-span-3 space-y-4 flex flex-col">
-                <button className="bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-purple-400 hover:text-white transition-colors cursor-pointer" onClick={toggleGhost}><RiGhost2Fill /> {ghost ? 'Disable' : 'Enable'} Ghost</button>
-                <button className="bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-green-600 hover:text-white transition-colors cursor-pointer" onClick={() => setEditing(null)}><FaCheck /> Done</button>
-                <button className="bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-green-600 hover:text-white transition-colors cursor-pointer" onClick={() => handleImageFlip("horizontal")}><BsSymmetryVertical className="w-5 h-5" /></button>
-                <button className="bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-green-600 hover:text-white transition-colors cursor-pointer" onClick={() => handleImageFlip("vertical")}><BsSymmetryHorizontal className="w-5 h-5" /></button>
-                <input type="text" placeholder="Add a caption..." value={project.frames.find((frame) => frame.id === editing)?.caption || ""} onChange={handleCaptionChange} name="caption" className="bg-white text-black p-2 rounded w-full" />
-                <button className="mt-auto bg-white p-2 rounded flex gap-2 items-center w-full justify-center hover:bg-red-800 hover:text-white transition-colors cursor-pointer" onClick={() => deleteFrame(editing)}><IoClose /> Delete</button>
+                <FrameImage
+                  key={editing}
+                  id={editing}
+                  ratio="aspect-[calc(3/4)]"
+                  className="m-auto w-xl my-auto"
+                  onReposition={onReposition}
+                  onDelete={handleFrameDelete}
+                  onCaptionChange={handleCaptionChange}
+                  alt=""
+                  editing
+                  projectId={project.id}
+                />
               </div>
             </div>
           </div>
