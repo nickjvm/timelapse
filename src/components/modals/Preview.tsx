@@ -4,6 +4,8 @@ import { PiPauseFill, PiPlayFill } from "react-icons/pi";
 import { useSettings, useAppStore, PLAYBACK_SPEEDS } from "@/store";
 import Image from "@/components/Image";
 import useFrames from "@/hooks/useFrames";
+import { BaseModal } from "@/components/modals/Base";
+import cn from "@/utils/cn";
 
 type Props = {
   onClose: () => void;
@@ -68,14 +70,7 @@ export default function Preview({ onClose, projectId }: Props) {
   }
 
   return (
-    <div
-      className="fixed flex top-0 left-0 right-0 bottom-0 bg-black/90 z-50"
-      onClick={(e) => {
-        if (e.currentTarget === e.target) {
-          onClose();
-        }
-      }}
-    >
+    <BaseModal open={true} onClose={onClose} variant="dark" className="flex">
       <div className="m-auto w-full max-w-md">
         <div className="flex items-center justify-center mb-2">
           <div>
@@ -95,13 +90,19 @@ export default function Preview({ onClose, projectId }: Props) {
               </button>
             )}
           </div>
-          <div className="ml-auto flex gap-2">
-            {Object.keys(PLAYBACK_SPEEDS).map((value) => (
+          <div className="ml-auto flex">
+            {Object.keys(PLAYBACK_SPEEDS).map((value, i) => (
               <label
                 key={value}
-                className={`flex gap-2 items-center cursor-pointer border rounded px-2 ${
-                  value === playbackSpeed ? "bg-white text-black" : "text-white"
-                }`}
+                className={cn(
+                  "flex gap-2 items-center cursor-pointer border border-white px-2 !rounded-none",
+                  value === playbackSpeed
+                    ? "bg-white text-black"
+                    : "text-white",
+                  i === Object.keys(PLAYBACK_SPEEDS).length - 1 &&
+                    "!rounded-r-full border-l-0",
+                  i === 0 && "!rounded-l-full border-r-0"
+                )}
               >
                 <input
                   type="radio"
@@ -122,36 +123,32 @@ export default function Preview({ onClose, projectId }: Props) {
             ))}
           </div>
         </div>
-        {frame && (
-          <>
-            <Image
-              projectId={projectId}
-              id={frame.id}
-              ratio="aspect-[calc(3/4)]"
-              className="w-full"
-              alt={frame.caption || ""}
-            />
-            <p className="text-center text-white text-xl font-bold mt-2">
-              {frame.caption || "\u00A0"}
-            </p>
-            <input
-              type="range"
-              min={startingIndex}
-              max={visibleFrames.length - 1}
-              step="1"
-              value={index}
-              onChange={(e) => {
-                setIndex(Number(e.target.value));
-                setAutoplay(false);
-                if (timer.current) {
-                  clearInterval(timer.current);
-                }
-              }}
-              className="w-full"
-            />
-          </>
-        )}
+        <Image
+          projectId={projectId}
+          id={frame.id}
+          ratio="aspect-[calc(3/4)]"
+          className="w-full"
+          alt={frame.caption || ""}
+        />
+        <p className="text-center text-white text-sm md:text-xl font-bold mt-2 mb-2">
+          {frame.caption || "\u00A0"}
+        </p>
+        <input
+          type="range"
+          min={startingIndex}
+          max={visibleFrames.length - 1}
+          step="1"
+          value={index}
+          className="w-full"
+          onChange={(e) => {
+            setIndex(Number(e.target.value));
+            setAutoplay(false);
+            if (timer.current) {
+              clearInterval(timer.current);
+            }
+          }}
+        />
       </div>
-    </div>
+    </BaseModal>
   );
 }

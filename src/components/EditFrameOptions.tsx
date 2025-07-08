@@ -7,8 +7,9 @@ import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
 import { useAppStore, useSettings } from "@/store";
 import cn from "@/utils/cn";
-import { useImageContext } from "./Image";
 import { flipImage } from "@/utils/flipImage";
+
+import { useImageContext } from "@/components/Image";
 
 export default function EditFrameOptions() {
   const {

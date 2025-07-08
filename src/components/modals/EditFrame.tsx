@@ -1,9 +1,11 @@
-import { RiCloseLargeLine } from "react-icons/ri";
+import { useEffect } from "react";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
+
 import useFrames from "@/hooks/useFrames";
 import Image from "@/components/Image";
 import useFrame from "@/hooks/useFrame";
-import { useEffect } from "react";
+
+import { BaseModal } from "@/components/modals/Base";
 
 type Props = {
   onClose: () => void;
@@ -65,14 +67,8 @@ export default function EditFrameModal({
   }, [frames, nextFrameIndex, prevFrameIndex]);
 
   return (
-    <div className="fixed flex items-center justify-center w-full h-full top-0 left-0 right-0 bottom-0 bg-black/90 z-50">
-      <button
-        className="absolute top-2 right-2 text-white hover:bg-white hover:text-black transform-colors !p-2"
-        onClick={onClose}
-      >
-        <RiCloseLargeLine className="w-5 h-5" />
-      </button>
-      <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex items-center px-2 pointer-events-none">
+    <BaseModal open={true} onClose={onClose} variant="dark" className="flex">
+      <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex items-center px-2 pointer-events-none text-black">
         {prevFrameIndex >= 0 && (
           <button
             className="bg-white/50 h-12 !px-1 hover:bg-white pointer-events-auto mr-auto"
@@ -90,19 +86,17 @@ export default function EditFrameModal({
           </button>
         )}
       </div>
-      <div className="grid grid-cols-9 gap-8 mx-auto">
-        <div className="relative col-span-9">
-          <Image
-            key={frameId}
-            id={frameId}
-            ratio="aspect-[calc(3/4)]"
-            className="m-auto w-full lg:w-xl my-auto"
-            projectId={projectId}
-            alt={frame?.caption || `${projectId} frame ${frameIndex + 1}`}
-            editing
-          />
-        </div>
+      <div className="my-auto relative w-full max-w-xl mx-auto text-black">
+        <Image
+          key={frameId}
+          id={frameId}
+          ratio="aspect-[calc(3/4)]"
+          className="m-auto w-full lg:w-xl my-auto"
+          projectId={projectId}
+          alt={frame?.caption || `${projectId} frame ${frameIndex + 1}`}
+          editing
+        />
       </div>
-    </div>
+    </BaseModal>
   );
 }

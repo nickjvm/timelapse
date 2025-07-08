@@ -20,14 +20,14 @@ import {
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 
-import Preview from "@/components/Preview";
+import Preview from "@/components/modals/Preview";
 import FrameImage from "@/components/Image";
-import Compare from "@/components/Compare";
+import Compare from "@/components/modals/Compare";
 import SortableItem from "@/components/SortableItem";
 import { SmartPointerSensor } from "@/components/PointerSensor";
 import useProject from "@/hooks/useProject";
 import Header from "@/components/Header";
-import EditFrameModal from "@/components/EditFrameModal";
+import EditFrameModal from "@/components/modals/EditFrame";
 import UploadFrame from "@/components/UploadFrame";
 
 import { useAppStore } from "@/store";
