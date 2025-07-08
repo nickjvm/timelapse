@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
-import { notFound, useParams } from "next/navigation";
+import { notFound, useParams, useRouter } from "next/navigation";
 import { MdCheck, MdCompare, MdDelete, MdEdit } from "react-icons/md";
 import { PiPlayFill } from "react-icons/pi";
 import { FaEyeSlash } from "react-icons/fa6";
@@ -33,6 +33,8 @@ import Dropzone from "@/components/Dropzone";
 import { useAppStore } from "@/store";
 import cn from "@/utils/cn";
 import EmptyProject from "@/components/EmptyProject";
+import useActionQueue from "@/hooks/useActionQueue";
+import { useNotifications } from "@/providers/Notifications";
 
 export default function ProjectPage() {
   const [preview, setPreview] = useState(false);
@@ -41,6 +43,9 @@ export default function ProjectPage() {
   const [editing, setEditing] = useState<string | null>(null);
   const [compareFrames, setCompareFrames] = useState<string[]>([]);
   const { updateProject, deleteProject } = useAppStore();
+  const { queueAction } = useActionQueue();
+  const { addNotification } = useNotifications();
+  const router = useRouter();
 
   const sensors = useSensors(
     useSensor(SmartPointerSensor),
@@ -90,8 +95,14 @@ export default function ProjectPage() {
       return;
     }
     if (confirm("Are you sure you want to delete this project?")) {
-      deleteProject(project.id);
-      window.location.href = "/";
+      queueAction(() => {
+        deleteProject(project.id);
+        addNotification({
+          message: `Project ${project.name} deleted.`,
+          type: "success",
+        });
+      });
+      router.push("/");
     }
   }
 
@@ -104,6 +115,10 @@ export default function ProjectPage() {
         frames: project.frames.filter((frame) => frame.id !== id),
       });
       setEditing(null);
+      addNotification({
+        message: `Frame deleted.`,
+        type: "success",
+      });
     }
   }
 

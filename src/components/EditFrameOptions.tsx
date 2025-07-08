@@ -9,7 +9,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { useAppStore, useSettings } from "@/store";
 import cn from "@/utils/cn";
 import { flipImage } from "@/utils/flipImage";
-
+import { useNotifications } from "@/providers/Notifications";
 import { useImageContext } from "@/components/Image";
 
 export default function EditFrameOptions() {
@@ -24,6 +24,7 @@ export default function EditFrameOptions() {
   } = useImageContext();
   const settings = useSettings();
   const { updateSettings, updateFrame, updateProject } = useAppStore();
+  const { addNotification } = useNotifications();
   const frameIndex = project.frames.findIndex((f) => f.id === frame.id);
 
   async function onFlip(direction: "horizontal" | "vertical") {
@@ -37,7 +38,11 @@ export default function EditFrameOptions() {
   const onDelete = () => {
     if (confirm("Are you sure you want to delete this frame?")) {
       updateProject(project.id, {
-        frames: project.frames.filter((frame) => frame.id !== frame.id),
+        frames: project.frames.filter((f) => f.id !== frame.id),
+      });
+      addNotification({
+        message: `Frame deleted.`,
+        type: "success",
       });
     }
   };
@@ -147,6 +152,7 @@ function OptionButton({
   // tailwind hack to get dynamic colors to render
   // group-hover:bg-blue-600
   // group-hover:bg-purple-600
+  // group-hover:bg-red-600
   // bg-red-600
   // bg-blue-600
   // bg-purple-600

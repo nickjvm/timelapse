@@ -111,7 +111,7 @@ export default function Image({
     return { x, y };
   };
 
-  if (!frame) {
+  if (!frame || !project) {
     return null;
   }
 
