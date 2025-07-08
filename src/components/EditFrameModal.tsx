@@ -2,7 +2,6 @@ import { RiCloseLargeLine } from "react-icons/ri";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import useFrames from "@/hooks/useFrames";
 import Image from "@/components/Image";
-import { useAppStore } from "@/store";
 import useFrame from "@/hooks/useFrame";
 import { useEffect } from "react";
 
@@ -12,13 +11,13 @@ type Props = {
   projectId: string;
   frameId: string;
 };
+
 export default function EditFrameModal({
   onClose,
   onChange,
   projectId,
   frameId,
 }: Props) {
-  const { updateProject } = useAppStore();
   const { frames } = useFrames(projectId);
 
   const frame = useFrame(projectId, frameId);
@@ -26,82 +25,20 @@ export default function EditFrameModal({
   const prevFrameIndex = frameIndex - 1;
   const nextFrameIndex = frameIndex + 1;
 
+  useEffect(() => {
+    if (!frame) {
+      onClose();
+    }
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  }, [frame]);
+
   const handleChange = (direction: "prev" | "next") => {
     return () =>
       onChange(
         direction === "prev"
           ? frames[prevFrameIndex].id
-          : frames[nextFrameIndex].id,
+          : frames[nextFrameIndex].id
       );
-  };
-
-  const handleReposition = (
-    x: number,
-    y: number,
-    scale: number,
-    rotation: number,
-  ) => {
-    updateProject(projectId, {
-      frames: frames.map((frame) => {
-        if (frame.id === frameId) {
-          return {
-            ...frame,
-            position: {
-              x,
-              y,
-            },
-            scale,
-            rotation,
-          };
-        }
-        return frame;
-      }),
-    });
-  };
-
-  const handleFrameDelete = (id: string) => {
-    if (!projectId) {
-      return;
-    }
-    if (confirm("Are you sure you want to delete this frame?")) {
-      updateProject(projectId, {
-        frames: frames.filter((frame) => frame.id !== id),
-      });
-      onClose();
-    }
-  };
-
-  const handleCaptionChange = (caption: string) => {
-    updateProject(projectId, {
-      frames: frames.map((frame) => {
-        if (frame.id === frameId) {
-          return {
-            ...frame,
-            caption,
-          };
-        }
-        return frame;
-      }),
-    });
-  };
-
-  const handleReset = () => {
-    updateProject(projectId, {
-      frames: frames.map((frame) => {
-        if (frame.id === frameId) {
-          return {
-            ...frame,
-            position: {
-              x: 0,
-              y: 0,
-            },
-            scale: 1,
-            rotation: 0,
-          };
-        }
-        return frame;
-      }),
-    });
   };
 
   useEffect(() => {
@@ -160,10 +97,6 @@ export default function EditFrameModal({
             id={frameId}
             ratio="aspect-[calc(3/4)]"
             className="m-auto w-xl my-auto"
-            onReposition={handleReposition}
-            onDelete={handleFrameDelete}
-            onCaptionChange={handleCaptionChange}
-            onReset={handleReset}
             projectId={projectId}
             alt={frame?.caption || `${projectId} frame ${frameIndex + 1}`}
             editing

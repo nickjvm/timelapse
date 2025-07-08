@@ -17,6 +17,8 @@ export type Frame = {
   scale: number;
 };
 
+export type Project = AppState["projects"][0];
+
 export type NewProject = Omit<
   AppState["projects"][0],
   "id" | "createdAt" | "updatedAt"
@@ -47,13 +49,13 @@ export interface AppActions {
   addProject: (project: NewProject) => string;
   updateProject: (
     id: string,
-    updates: Partial<AppState["projects"][0]>,
+    updates: Partial<AppState["projects"][0]>
   ) => void;
   deleteProject: (id: string) => void;
   updateFrame: (
     projectId: string,
     frameId: string,
-    updates: Partial<Frame>,
+    updates: Partial<Frame>
   ) => void;
   deleteFrame: (projectId: string, frameId: string) => void;
   updateSettings: (settings: Partial<AppState["settings"]>) => void;
@@ -100,14 +102,14 @@ export const useAppStore = create<AppStore>()(
       updateProject: (id: string, updates: Partial<AppState["projects"][0]>) =>
         set((state) => ({
           projects: state.projects.map((p) =>
-            p.id === id ? { ...p, ...updates, updatedAt: new Date() } : p,
+            p.id === id ? { ...p, ...updates, updatedAt: new Date() } : p
           ),
         })),
 
       updateFrame: (
         projectId: string,
         frameId: string,
-        updates: Partial<Frame>,
+        updates: Partial<Frame>
       ) =>
         set((state) => ({
           projects: state.projects.map((p) =>
@@ -115,10 +117,10 @@ export const useAppStore = create<AppStore>()(
               ? {
                   ...p,
                   frames: p.frames.map((f) =>
-                    f.id === frameId ? { ...f, ...updates } : f,
+                    f.id === frameId ? { ...f, ...updates } : f
                   ),
                 }
-              : p,
+              : p
           ),
         })),
 
@@ -127,7 +129,7 @@ export const useAppStore = create<AppStore>()(
           projects: state.projects.map((p) =>
             p.id === projectId
               ? { ...p, frames: p.frames.filter((f) => f.id !== frameId) }
-              : p,
+              : p
           ),
         })),
 
@@ -149,8 +151,8 @@ export const useAppStore = create<AppStore>()(
         projects: state.projects,
         settings: state.settings,
       }),
-    },
-  ),
+    }
+  )
 );
 
 export const useProjects = () => useAppStore((state) => state.projects);

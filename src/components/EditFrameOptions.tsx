@@ -6,29 +6,65 @@ import { RxReset } from "react-icons/rx";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
 import { useAppStore, useSettings } from "@/store";
-import useFrame from "@/hooks/useFrame";
 import cn from "@/utils/cn";
+import { useImageContext } from "./Image";
+import { flipImage } from "@/utils/flipImage";
 
-type Props = {
-  alterationType: "rotate" | "zoom" | "caption" | null;
-  setAlterationType: (alterationType: "rotate" | "zoom" | null) => void;
-  handleImageFlip: (direction: "horizontal" | "vertical") => void;
-  handleReset: () => void;
-  projectId: string;
-  frameId: string;
-};
-
-export default function EditFrameOptions({
-  alterationType,
-  setAlterationType,
-  handleImageFlip,
-  handleReset,
-  projectId,
-  frameId,
-}: Props) {
+export default function EditFrameOptions() {
+  const {
+    project,
+    frame,
+    alterationType,
+    setAlterationType,
+    position,
+    scale,
+    rotation,
+  } = useImageContext();
   const settings = useSettings();
-  const frame = useFrame(projectId, frameId);
-  const { updateSettings, deleteFrame, updateFrame } = useAppStore();
+  const { updateSettings, updateFrame, updateProject } = useAppStore();
+
+  async function onFlip(direction: "horizontal" | "vertical") {
+    const flippedImage = await flipImage(frame.image, direction);
+
+    updateFrame(project.id, frame.id, {
+      image: flippedImage,
+    });
+  }
+
+  const onDelete = () => {
+    if (confirm("Are you sure you want to delete this frame?")) {
+      updateProject(project.id, {
+        frames: project.frames.filter((frame) => frame.id !== frame.id),
+      });
+    }
+  };
+
+  const onReset = () => {
+    updateFrame(project.id, frame.id, {
+      position: {
+        x: 0,
+        y: 0,
+      },
+      scale: 1,
+      rotation: 0,
+    });
+    position.x.set(0);
+    position.y.set(0);
+    scale.set(1);
+    rotation.set(0);
+  };
+
+  const onShowHide = () => {
+    updateFrame(project.id, frame.id, {
+      hidden: !frame?.hidden,
+    });
+  };
+
+  const onToggleGhost = () => {
+    updateSettings({
+      ghost: !settings.ghost,
+    });
+  };
 
   return (
     <div className="z-50 px-2 py-0.5 bg-white transition-opacity opacity-20 hover:shadow hover:opacity-85 w-13 rounded-full  relative flex flex-col justify-center items-center overflow-hidden">
@@ -55,25 +91,19 @@ export default function EditFrameOptions({
         <HiOutlineMagnifyingGlass className="w-6 h-6" />
       </button>
       <button
-        onClick={(e) => {
-          e.preventDefault();
-          handleImageFlip("horizontal");
-        }}
+        onClick={() => onFlip("horizontal")}
         className="hover:text-white !rounded-full !p-3 hover:bg-blue-600"
       >
         <BsSymmetryVertical className="w-6 h-6" />
       </button>
       <button
-        onClick={(e) => {
-          e.preventDefault();
-          handleImageFlip("vertical");
-        }}
+        onClick={() => onFlip("vertical")}
         className="hover:text-white !rounded-full !p-3 hover:bg-blue-600"
       >
         <BsSymmetryHorizontal className="w-6 h-6" />
       </button>
       <button
-        onClick={() => updateSettings({ ghost: !settings.ghost })}
+        onClick={onToggleGhost}
         className={cn(
           "hover:text-white !rounded-full !p-3 hover:bg-purple-600",
           settings.ghost ? "text-purple-600" : ""
@@ -86,25 +116,23 @@ export default function EditFrameOptions({
         )}
       </button>
       <button
-        onClick={handleReset}
+        onClick={onReset}
         className="hover:text-white !rounded-full !p-3 hover:bg-blue-600"
       >
         <RxReset className="w-6 h-6" />
       </button>
       <button
-        onClick={() =>
-          updateFrame(projectId, frameId, { hidden: !frame?.hidden })
-        }
+        onClick={onShowHide}
         className="hover:text-white !rounded-full !p-3 hover:bg-blue-600"
       >
         {frame?.hidden ? (
-          <FaEye className="w-6 h-6" />
-        ) : (
           <FaEyeSlash className="w-6 h-6" />
+        ) : (
+          <FaEye className="w-6 h-6" />
         )}
       </button>
       <button
-        onClick={() => deleteFrame(projectId, frameId)}
+        onClick={onDelete}
         className="hover:text-white !rounded-full !p-3 hover:bg-red-600"
       >
         <MdDelete className="w-6 h-6" />

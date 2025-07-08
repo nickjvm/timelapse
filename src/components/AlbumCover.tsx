@@ -5,6 +5,7 @@ import { PiNoteBlank } from "react-icons/pi";
 type Props = {
   projectId: string;
 };
+
 export default function AlbumCover({ projectId }: Props) {
   const project = useProject(projectId);
   const frames = project?.frames || [];

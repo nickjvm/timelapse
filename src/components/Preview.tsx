@@ -15,24 +15,25 @@ export default function Preview({ onClose, projectId }: Props) {
   const { playbackSpeed } = useSettings();
   const { updateSettings } = useAppStore();
 
-  const { frames, visibleFrames } = useFrames(projectId);
+  const { visibleFrames } = useFrames(projectId);
 
-  const startingIndex = frames.findIndex((frame) => !frame.hidden) || 0;
+  const startingIndex = visibleFrames.findIndex((frame) => !frame.hidden) || 0;
   const [index, setIndex] = useState(startingIndex);
-  const frame = frames[index];
+  const frame = visibleFrames[index];
 
   const timer = useRef<NodeJS.Timeout>(null);
 
   const goToNext = useCallback(() => {
-    const findNextIndex = () => {
-      const nextIndex = index + 1 >= (frames?.length || 0) ? 0 : index + 1;
-      if (frames[nextIndex].hidden) {
-        return findNextIndex();
+    const findNextIndex = (currentIndex: number) => {
+      const nextIndex =
+        currentIndex + 1 >= (visibleFrames?.length || 0) ? 0 : currentIndex + 1;
+      if (visibleFrames[nextIndex].hidden) {
+        return findNextIndex(nextIndex);
       }
       return nextIndex;
     };
-    setIndex(findNextIndex());
-  }, [index, frames]);
+    setIndex(findNextIndex(index));
+  }, [index, visibleFrames]);
 
   useEffect(() => {
     if (autoplay) {
@@ -48,7 +49,7 @@ export default function Preview({ onClose, projectId }: Props) {
         clearTimeout(timer.current);
       }
     };
-  }, [autoplay, goToNext, playbackSpeed]);
+  }, [autoplay, index, playbackSpeed, goToNext]);
 
   useEffect(() => {
     const handleKeypress = (e: KeyboardEvent) => {
@@ -62,7 +63,7 @@ export default function Preview({ onClose, projectId }: Props) {
     };
   }, [onClose]);
 
-  if (!frames.length) {
+  if (!visibleFrames.length) {
     return null;
   }
 
@@ -98,7 +99,9 @@ export default function Preview({ onClose, projectId }: Props) {
             {Object.keys(PLAYBACK_SPEEDS).map((value) => (
               <label
                 key={value}
-                className={`flex gap-2 items-center cursor-pointer border rounded px-2 ${value === playbackSpeed ? "bg-white text-black" : "text-white"}`}
+                className={`flex gap-2 items-center cursor-pointer border rounded px-2 ${
+                  value === playbackSpeed ? "bg-white text-black" : "text-white"
+                }`}
               >
                 <input
                   type="radio"
