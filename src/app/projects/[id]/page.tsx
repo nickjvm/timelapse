@@ -134,8 +134,13 @@ export default function ProjectPage() {
             </button>,
             <button
               key="play"
-              className=" bg-blue-500 text-white hover:bg-blue-800"
+              className={cn(
+                " bg-blue-500 text-white",
+                !project.frames.length && "opacity-50 !cursor-not-allowed",
+                project.frames.length && "hover:bg-blue-800"
+              )}
               onClick={() => setPreview(true)}
+              disabled={!project.frames.length}
             >
               <PiPlayFill /> Play
             </button>,
