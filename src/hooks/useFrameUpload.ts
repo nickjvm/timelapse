@@ -1,10 +1,20 @@
 import compressAndEncodeFile from "@/utils/compressFileUpload";
 import { useAppStore, Frame } from "@/store";
 import useProject from "@/hooks/useProject";
+import { ChangeEvent } from "react";
 
 export default function useFrameUpload({ projectId }: { projectId: string }) {
   const { updateProject } = useAppStore();
   const project = useProject(projectId);
+
+  const onChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files as FileList;
+    if (!files?.length) {
+      return;
+    }
+
+    uploadFiles(files);
+  };
 
   const prepareFiles = async (files: File[] | FileList) => {
     const frames: Frame[] = [];
@@ -47,5 +57,5 @@ export default function useFrameUpload({ projectId }: { projectId: string }) {
     });
   };
 
-  return { upload: uploadFiles };
+  return { upload: uploadFiles, onChange };
 }

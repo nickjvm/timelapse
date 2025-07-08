@@ -32,6 +32,7 @@ import Dropzone from "@/components/Dropzone";
 
 import { useAppStore } from "@/store";
 import cn from "@/utils/cn";
+import EmptyProject from "@/components/EmptyProject";
 
 export default function ProjectPage() {
   const [preview, setPreview] = useState(false);
@@ -139,81 +140,84 @@ export default function ProjectPage() {
             </button>,
           ]}
         />
-        <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-5xl mx-auto gap-2">
-          <SortableContext items={project.frames}>
-            {project.frames.map((frame) => (
-              <SortableItem key={frame.id} id={frame.id}>
-                <div
-                  key={frame.id}
-                  className={cn("relative", frame.hidden && "opacity-50")}
-                >
-                  <div className="relative group">
-                    {frame.hidden && (
-                      <FaEyeSlash className="absolute top-1/2 left-1/2 -translate-1/2 w-8 h-8 text-black z-10" />
-                    )}
-                    <div
-                      className="z-10 absolute top-0 left-0 w-full flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity p-2"
-                      data-no-dnd="true"
-                    >
-                      <button
-                        onClick={() => editFrame(frame.id)}
-                        className="!gap-1 !py-1 !px-2 bg-white/50 rounded-lg hover:bg-white"
+        {project.frames.length === 0 && <EmptyProject projectId={project.id} />}
+        {project.frames.length > 0 && (
+          <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-5xl mx-auto gap-2">
+            <SortableContext items={project.frames}>
+              {project.frames.map((frame) => (
+                <SortableItem key={frame.id} id={frame.id}>
+                  <div
+                    key={frame.id}
+                    className={cn("relative", frame.hidden && "opacity-50")}
+                  >
+                    <div className="relative group">
+                      {frame.hidden && (
+                        <FaEyeSlash className="absolute top-1/2 left-1/2 -translate-1/2 w-8 h-8 text-black z-10" />
+                      )}
+                      <div
+                        className="z-10 absolute top-0 left-0 w-full flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity p-2"
+                        data-no-dnd="true"
                       >
-                        <MdEdit className="w-5 h-5" />
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleFrameDelete(frame.id)}
-                        className="!gap-1 !py-1 !px-2 text-red-800 bg-white/50 rounded-lg hover:bg-red-800 hover:text-white"
-                      >
-                        Delete
-                        <MdDelete className="w-5 h-5" />
-                      </button>
-                    </div>
-                    <div
-                      className="z-10 absolute bottom-0 left-0 w-full flex items-center justify-center p-2"
-                      data-no-dnd="true"
-                    >
-                      <input
-                        type="checkbox"
-                        value={frame.id}
-                        checked={compareFrames.includes(frame.id)}
-                        onChange={handleCompareChange}
-                        id={`compare-${frame.id}`}
-                        className="sr-only peer"
-                      />
-                      <label
-                        htmlFor={`compare-${frame.id}`}
-                        className="btn !gap-1 !py-1 !px-2 bg-white/50 rounded-lg hover:bg-white hover:text-black opacity-0 group-hover:opacity-100 peer-checked:opacity-100 peer-checked:bg-white"
-                      >
-                        {compareFrames.includes(frame.id) ? (
-                          <MdCheck className="w-5 h-5" />
-                        ) : (
-                          <MdCompare className="w-5 h-5" />
-                        )}
-                        Compare
-                      </label>
-                    </div>
-                    <FrameImage
-                      projectId={project.id}
-                      key={frame.image}
-                      id={frame.id}
-                      className="rounded"
-                      ratio="aspect-[calc(3/4)]"
-                      alt={frame.caption || ""}
-                    />
-                    {frame.caption && (
-                      <div className="group-hover:opacity-0 transition-opacity absolute bottom-0 left-0 w-full flex items-center justify-center p-1 bg-black/50 text-white text-xs line-clamp-1 overflow-ellipsis rounded-b">
-                        {frame.caption}
+                        <button
+                          onClick={() => editFrame(frame.id)}
+                          className="!gap-1 !py-1 !px-2 bg-white/50 rounded-lg hover:bg-white"
+                        >
+                          <MdEdit className="w-5 h-5" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleFrameDelete(frame.id)}
+                          className="!gap-1 !py-1 !px-2 text-red-800 bg-white/50 rounded-lg hover:bg-red-800 hover:text-white"
+                        >
+                          Delete
+                          <MdDelete className="w-5 h-5" />
+                        </button>
                       </div>
-                    )}
+                      <div
+                        className="z-10 absolute bottom-0 left-0 w-full flex items-center justify-center p-2"
+                        data-no-dnd="true"
+                      >
+                        <input
+                          type="checkbox"
+                          value={frame.id}
+                          checked={compareFrames.includes(frame.id)}
+                          onChange={handleCompareChange}
+                          id={`compare-${frame.id}`}
+                          className="sr-only peer"
+                        />
+                        <label
+                          htmlFor={`compare-${frame.id}`}
+                          className="btn !gap-1 !py-1 !px-2 bg-white/50 rounded-lg hover:bg-white hover:text-black opacity-0 group-hover:opacity-100 peer-checked:opacity-100 peer-checked:bg-white"
+                        >
+                          {compareFrames.includes(frame.id) ? (
+                            <MdCheck className="w-5 h-5" />
+                          ) : (
+                            <MdCompare className="w-5 h-5" />
+                          )}
+                          Compare
+                        </label>
+                      </div>
+                      <FrameImage
+                        projectId={project.id}
+                        key={frame.image}
+                        id={frame.id}
+                        className="rounded"
+                        ratio="aspect-[calc(3/4)]"
+                        alt={frame.caption || ""}
+                      />
+                      {frame.caption && (
+                        <div className="group-hover:opacity-0 transition-opacity absolute bottom-0 left-0 w-full flex items-center justify-center p-1 bg-black/50 text-white text-xs line-clamp-1 overflow-ellipsis rounded-b">
+                          {frame.caption}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </SortableItem>
-            ))}
-          </SortableContext>
-          <UploadFrame projectId={project.id} />
-        </div>
+                </SortableItem>
+              ))}
+            </SortableContext>
+            <UploadFrame projectId={project.id} />
+          </div>
+        )}
         {preview && (
           <Preview projectId={project.id} onClose={() => setPreview(false)} />
         )}

@@ -1,4 +1,3 @@
-import { ChangeEvent } from "react";
 import { MdCloudUpload } from "react-icons/md";
 import useFrameUpload from "@/hooks/useFrameUpload";
 
@@ -6,15 +5,7 @@ type Props = {
   projectId: string;
 };
 export default function UploadFrame({ projectId }: Props) {
-  const { upload } = useFrameUpload({ projectId });
-  const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files as FileList;
-    if (!files?.length) {
-      return;
-    }
-
-    upload(files);
-  };
+  const { onChange } = useFrameUpload({ projectId });
 
   return (
     <div className="block w-full relative shrink-0">
@@ -27,7 +18,7 @@ export default function UploadFrame({ projectId }: Props) {
           type="file"
           multiple
           accept="image/*"
-          onChange={handleChange}
+          onChange={onChange}
           className="absolute top-0 left-0 right-0 bottom-0 hidden opacity-0"
         />
       </label>
