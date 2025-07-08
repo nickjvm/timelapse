@@ -129,7 +129,7 @@ export default function Preview({ onClose, projectId }: Props) {
               id={frame.id}
               ratio="aspect-[calc(3/4)]"
               className="w-full"
-              alt=""
+              alt={frame.caption || ""}
             />
             <p className="text-center text-white text-xl font-bold mt-2">
               {frame.caption || "\u00A0"}

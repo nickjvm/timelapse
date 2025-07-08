@@ -244,7 +244,7 @@ Image.Draggable = function ImageDraggable({
         <img
           ref={imageRef}
           src={frame.image}
-          alt=""
+          alt={frame.caption || ""}
           className="w-full h-auto pointer-events-none"
         />
       </motion.div>
@@ -254,7 +254,7 @@ Image.Draggable = function ImageDraggable({
   return (
     <img
       src={frame.image}
-      alt=""
+      alt={frame.caption || ""}
       className="w-full h-auto relative"
       style={{
         left: `${frame.position.x * 100}%`,

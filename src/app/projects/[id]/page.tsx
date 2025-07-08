@@ -141,7 +141,7 @@ export default function ProjectPage() {
             </button>,
           ]}
         />
-        <div className="p-4 grid grid-cols-4 max-w-5xl mx-auto gap-2">
+        <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-5xl mx-auto gap-2">
           <SortableContext items={project.frames}>
             {project.frames.map((frame) => (
               <SortableItem key={frame.id} id={frame.id}>
@@ -202,7 +202,7 @@ export default function ProjectPage() {
                       id={frame.id}
                       className="rounded"
                       ratio="aspect-[calc(3/4)]"
-                      alt=""
+                      alt={frame.caption || ""}
                     />
                     {frame.caption && (
                       <div className="group-hover:opacity-0 transition-opacity absolute bottom-0 left-0 w-full flex items-center justify-center p-1 bg-black/50 text-white text-xs line-clamp-1 overflow-ellipsis rounded-b">

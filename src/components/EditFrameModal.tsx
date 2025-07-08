@@ -90,13 +90,13 @@ export default function EditFrameModal({
           </button>
         )}
       </div>
-      <div className="grid grid-cols-9 gap-8 max-w-3xl mx-auto">
+      <div className="grid grid-cols-9 gap-8 mx-auto">
         <div className="relative col-span-9">
           <Image
             key={frameId}
             id={frameId}
             ratio="aspect-[calc(3/4)]"
-            className="m-auto w-xl my-auto"
+            className="m-auto w-full lg:w-xl my-auto"
             projectId={projectId}
             alt={frame?.caption || `${projectId} frame ${frameIndex + 1}`}
             editing

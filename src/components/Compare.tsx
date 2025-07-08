@@ -3,7 +3,7 @@ import { motion, useMotionValue, useMotionValueEvent } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { MdDragIndicator } from "react-icons/md";
 
-import FrameImage from "@/components/Image";
+import Image from "@/components/Image";
 import useFrame from "@/hooks/useFrame";
 
 type Props = {
@@ -30,13 +30,6 @@ export default function Compare({
   const leftFrame = useFrame(projectId, leftFrameId);
   const rightFrame = useFrame(projectId, rightFrameId);
 
-  // useEffect(() => {
-  //     if (mode === 'overlaid' && containerRef.current) {
-  //         x.set(containerRef.current.offsetWidth / 2)
-  //     }
-  //     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  // }, [mode])
-
   useEffect(() => {
     const handleKeypress = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -61,13 +54,17 @@ export default function Compare({
     >
       <div className="flex items-center justify-center space-x-2">
         <button
-          className={` text-black px-2 py-1 rounded border border-white ${mode === "side-by-side" ? "bg-white" : "text-white"}`}
+          className={` text-black px-2 py-1 rounded border border-white ${
+            mode === "side-by-side" ? "bg-white" : "text-white"
+          }`}
           onClick={() => setMode("side-by-side")}
         >
           Side by Side
         </button>
         <button
-          className={` text-black px-2 py-1 rounded border border-white ${mode === "overlaid" ? "bg-white" : "text-white"}`}
+          className={` text-black px-2 py-1 rounded border border-white ${
+            mode === "overlaid" ? "bg-white" : "text-white"
+          }`}
           onClick={() => setMode("overlaid")}
         >
           Overlaid
@@ -80,12 +77,12 @@ export default function Compare({
             className="relative items-center justify-center aspect-[calc(3/4)]"
           >
             <div>
-              <FrameImage
+              <Image
                 projectId={projectId}
                 id={leftFrameId}
                 ratio="aspect-[calc(3/4)]"
                 className="w-md"
-                alt=""
+                alt={leftFrame?.caption || ""}
               />
               <p className="absolute bottom-0 left-0 right-0 text-right text-lg text-shadow-lg font-bold text-white p-2">
                 {leftFrame?.caption}
@@ -95,12 +92,12 @@ export default function Compare({
               className="absolute top-0 left-0 overflow-hidden"
               style={{ width: compareWidth + "px" }}
             >
-              <FrameImage
+              <Image
                 projectId={projectId}
                 id={rightFrameId}
                 ratio="aspect-[calc(3/4)]"
                 className="w-md"
-                alt=""
+                alt={rightFrame?.caption || ""}
               />
               <p className="absolute bottom-0 left-0 right-0 text-left text-lg text-shadow-lg font-bold text-white p-2 whitespace-nowrap overflow-hidden">
                 {rightFrame?.caption}
@@ -121,24 +118,24 @@ export default function Compare({
         {mode === "side-by-side" && (
           <div className="relative items-center justify-center flex gap-2">
             <div className="relative">
-              <FrameImage
+              <Image
                 projectId={projectId}
                 id={leftFrameId}
                 ratio="aspect-[calc(3/4)]"
                 className="w-md"
-                alt=""
+                alt={leftFrame?.caption || ""}
               />
               <p className="absolute top-full left-0 right-0 text-center text-xl font-bold text-white p-2">
                 {leftFrame?.caption}
               </p>
             </div>
             <div className="relative">
-              <FrameImage
+              <Image
                 projectId={projectId}
                 id={rightFrameId}
                 ratio="aspect-[calc(3/4)]"
                 className="w-md"
-                alt=""
+                alt={rightFrame?.caption || ""}
               />
               <p className="absolute top-full left-0 right-0 text-center text-xl font-bold text-white p-2">
                 {rightFrame?.caption}
