@@ -45,7 +45,7 @@ export default function ProjectPage() {
     useSensor(SmartPointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   if (!project) {
@@ -72,10 +72,10 @@ export default function ProjectPage() {
 
     if (active.id !== over?.id && project) {
       const oldIndex = project.frames.findIndex(
-        (frame) => frame.id === active.id,
+        (frame) => frame.id === active.id
       );
       const newIndex = project.frames.findIndex(
-        (frame) => frame.id === over?.id,
+        (frame) => frame.id === over?.id
       );
 
       updateProject(project.id, {
@@ -200,11 +200,12 @@ export default function ProjectPage() {
                       projectId={project.id}
                       key={frame.image}
                       id={frame.id}
+                      className="rounded"
                       ratio="aspect-[calc(3/4)]"
                       alt=""
                     />
                     {frame.caption && (
-                      <div className="group-hover:opacity-0 transition-opacity absolute bottom-0 left-0 w-full flex items-center justify-center p-1 bg-black/50 text-white text-xs line-clamp-1 overflow-ellipsis">
+                      <div className="group-hover:opacity-0 transition-opacity absolute bottom-0 left-0 w-full flex items-center justify-center p-1 bg-black/50 text-white text-xs line-clamp-1 overflow-ellipsis rounded-b">
                         {frame.caption}
                       </div>
                     )}

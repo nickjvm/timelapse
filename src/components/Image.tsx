@@ -16,7 +16,7 @@ import {
 import { MdOutlineRotateLeft, MdOutlineRotateRight } from "react-icons/md";
 import { RxText } from "react-icons/rx";
 
-import EditFrameMenu from "@/components/EditFrameMenu";
+import EditFrameOptions from "@/components/EditFrameOptions";
 import { flipImage } from "@/utils/flipImage";
 import cn from "@/utils/cn";
 import { useAppStore, useSettings } from "@/store";
@@ -30,7 +30,7 @@ type Props = {
     x: number,
     y: number,
     scale: number,
-    rotation: number,
+    rotation: number
   ) => void;
   onDelete?: (id: string) => void;
   onCaptionChange?: (caption: string) => void;
@@ -57,6 +57,8 @@ export default function Image({
 
   const project = projects.find((project) => project.id === projectId)!;
   const frame = useFrame(projectId, id);
+
+  const [dragging, setDragging] = useState(false);
 
   const prevFrameIndex =
     project.frames.findIndex((frame) => frame.id === id) - 1;
@@ -164,58 +166,48 @@ export default function Image({
   return (
     <>
       <div
+        ref={containerRef}
         className={cn(
           ratio,
-          "overflow-hidden bg-neutral-200 relative",
-          className,
+          "overflow-hidden bg-neutral-200 relative rounded",
+          className
         )}
-        ref={containerRef}
       >
-        {editing && (
-          <motion.div
-            drag
-            style={{ x, y, scale, rotate: rotation }}
-            dragTransition={{
-              bounceStiffness: 1000,
-            }}
-            dragMomentum={false}
-            dragElastic={0.05}
-            animate={controls}
-            dragConstraints={constraints}
-          >
-            <img
-              ref={imageRef}
-              src={frame.image}
-              alt=""
-              className={`w-full h-auto pointer-events-none`}
-            />
-          </motion.div>
-        )}
-        {!editing && (
+        <motion.div
+          className={cn("cursor-grab", dragging && "cursor-grabbing")}
+          drag={editing}
+          style={{ x, y, scale, rotate: rotation }}
+          dragTransition={{
+            bounceStiffness: 1000,
+          }}
+          dragMomentum={false}
+          dragElastic={0.05}
+          animate={controls}
+          dragConstraints={constraints}
+          onDragStart={() => setDragging(true)}
+          onDragEnd={() => setDragging(false)}
+        >
           <img
+            ref={imageRef}
             src={frame.image}
             alt=""
-            style={{
-              transform: `scale(${frame.scale}) rotate(${frame.rotation}deg)`,
-              left: `${frame.position.x * 100}%`,
-              top: `${frame.position.y * 100}%`,
-            }}
-            className={`w-full h-auto pointer-events-none relative origin-center`}
+            className="w-full h-auto pointer-events-none"
           />
-        )}
+        </motion.div>
         {editing && settings.ghost && prevFrameIndex >= 0 && (
           <Image
             projectId={project.id}
             id={project.frames[prevFrameIndex].id}
             ratio="aspect-[calc(3/4)]"
-            alt=""
+            alt="previous frame ghost"
             className="w-full absolute top-0 opacity-30 pointer-events-none left-1/2 -translate-x-1/2"
           />
         )}
       </div>
       {editing && (
         <div className="absolute right-2 top-2">
-          <EditFrameMenu
+          <EditFrameOptions
+            alterationType={alterationType}
             setAlterationType={(v) => {
               if (alterationType === v) {
                 setAlterationType(null);
@@ -251,14 +243,14 @@ export default function Image({
                   onCaptionChange?.(e.target.value);
                   setAlterationType(null);
                 }}
-                className="absolute bottom-2 left-2 right-2 bg-black/50 text-white p-2 px-4 text-lg rounded-full text-center"
+                className="absolute bottom-2 left-2 right-2 bg-black/75 text-white p-2.5 px-4 text-lg rounded-full text-center"
               />
             </label>
           )}
         {editing && !alterationType && !frame.caption && (
           <button
             onClick={() => setAlterationType("caption")}
-            className="absolute bottom-2 left-2  bg-black/50 text-white !p-2 text-lg !rounded-full text-center"
+            className="absolute bottom-2 left-2  bg-black/50 text-white !p-2 text-lg !rounded-full text-center hover:bg-black/75 transition-colors"
           >
             <RxText className="w-7 h-7" />
           </button>
