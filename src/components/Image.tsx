@@ -16,6 +16,7 @@ import EditFrameMenu from "./EditFrameMenu";
 import { flipImage } from "@/utils/flipImage";
 import cn from "@/utils/cn";
 import { RxText } from "react-icons/rx";
+import useFrame from "@/hooks/useFrame";
 
 type Props = {
     projectId: string
@@ -44,7 +45,7 @@ export default function Image({
     const settings = useSettings()
 
     const project = projects.find((project) => project.id === projectId)!
-    const frame = project.frames.find((frame) => frame.id === id)!
+    const frame = useFrame(projectId, id)
 
     const prevFrameIndex = project.frames.findIndex((frame) => frame.id === id) - 1
 
@@ -100,17 +101,14 @@ export default function Image({
         return { x, y };
     };
 
-    const positionRef = useRef(frame.position);
     useEffect(() => {
-        if (!editing) {
+        if (!editing || !frame) {
             return
         }
         x.set(getPixelPosition(frame.position.x, frame.position.y).x)
         y.set(getPixelPosition(frame.position.x, frame.position.y).y)
         scale.set(frame.scale)
         rotation.set(frame.rotation || 0)
-
-        positionRef.current = frame.position
 
         if (containerRef.current) {
             setConstraints({
@@ -120,9 +118,8 @@ export default function Image({
                 right: containerRef.current.offsetWidth / 2,
             })
         }
-        // }
         /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    }, [editing])
+    }, [editing, frame])
 
     const handleReposition = () => {
         const pixelX = x.get();
@@ -135,48 +132,23 @@ export default function Image({
     useMotionValueEvent(y, "change", handleReposition)
     useMotionValueEvent(scale, "change", handleReposition)
     useMotionValueEvent(rotation, "change", handleReposition)
-    // useEffect(() => {
-    //     if (!editing) {
-    //         x.destroy()
-    //         y.destroy()
-    //         scale.destroy()
-    //         rotation.destroy()
-    //         return
-    //     }
-
-    //     x.on('change', handleReposition)
-    //     y.on('change', handleReposition)
-    //     scale.on('change', handleReposition)
-    //     rotation.on('change', handleReposition)
-    // }, [editing, frame.image])
-
-    // useEffect(() => {
-    //     if (!containerRef.current) {
-    //         return
-    //     }
-    //     // Convert percentage back to pixels when rendering
-    //     const { x: pixelX, y: pixelY } = getPixelPosition(state.x, state.y);
-    //     console.log({ pixelX, pixelY })
-    // }, [state])
-
-    // if (!state) {
-    //     return null
-    // }
 
     async function handleImageFlip(direction: 'horizontal' | 'vertical') {
-        if (!project || !editing) {
+        if (!project || !editing || !frame) {
             return;
         }
-        const frame = project.frames.find((frame) => frame.id === id);
-        if (!frame) {
-            return;
-        }
+
         const flippedImage = await flipImage(frame.image, direction);
 
         updateFrame(project.id, id, {
             image: flippedImage,
         });
     }
+
+    if (!frame) {
+        return null
+    }
+
     return (
         <>
             <div className={cn(ratio, 'overflow-hidden bg-neutral-200 relative', className)} ref={containerRef}>

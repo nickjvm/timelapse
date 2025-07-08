@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { MdCheck, MdCloudUpload, MdCompare, MdDelete, MdEdit, MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 import {
@@ -30,13 +30,13 @@ import Link from "next/link";
 import { FaArrowLeftLong, FaEyeSlash } from "react-icons/fa6";
 import { RiCloseLargeLine } from "react-icons/ri";
 import cn from "@/utils/cn";
+import useProject from "@/hooks/useProject";
 
 export default function ProjectPage() {
   const [editProjectName, setEditProjectName] = useState(false)
   const [preview, setPreview] = useState(false);
   const { id } = useParams();
-  const { projects } = useAppStore();
-  const project = projects.find((p) => p.id === id);
+  const project = useProject(id as string)
   const [editing, setEditing] = useState<string | null>(null);
   const [compareFrames, setCompareFrames] = useState<string[]>([])
   const { updateProject, deleteProject } = useAppStore();
@@ -166,8 +166,6 @@ export default function ProjectPage() {
     setEditProjectName(!editProjectName)
   }
 
-  const projectNameRef = useRef<HTMLInputElement>(null)
-
   useEffect(() => {
     const handleKeypress = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft') {
@@ -257,7 +255,7 @@ export default function ProjectPage() {
             </Link>
             <h2 className="text-xl font-bold w-full">
               {!editProjectName && <button onClick={toggleEditProjectName} className="group !p-0">{project.name} <MdEdit className="opacity-30 transition-opacity group-hover:opacity-100 w-5 h-5" /></button>}
-              {editProjectName && <input autoFocus ref={projectNameRef} type="text" value={project.name} onChange={(e) => updateProject(project.id, { name: e.target.value })} onBlur={() => toggleEditProjectName()} className="w-full p-2 block -my-2 -ml-2" />}
+              {editProjectName && <input autoFocus type="text" value={project.name} onChange={(e) => updateProject(project.id, { name: e.target.value })} onBlur={() => toggleEditProjectName()} className="w-full p-2 block -my-2 -ml-2" />}
             </h2>
 
             <button className=" bg-white text-red-800 hover:bg-white hover:underline text-sm" onClick={handleDelete}>
@@ -315,7 +313,7 @@ export default function ProjectPage() {
             </label>
           </div>
         </div>
-        {preview && <Preview onClose={() => setPreview(false)} />}
+        {preview && <Preview projectId={project.id} onClose={() => setPreview(false)} />}
         {
           editing && <div
             className="fixed flex items-center justify-center w-full h-full top-0 left-0 right-0 bottom-0 bg-black/90 z-50"

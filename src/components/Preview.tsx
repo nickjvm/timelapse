@@ -1,38 +1,37 @@
-import { AppState, useProjects, useSettings, useAppStore, PLAYBACK_SPEEDS } from "@/store";
-// import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useSettings, useAppStore, PLAYBACK_SPEEDS } from "@/store";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "./Image";
 import { PiPauseFill, PiPlayFill } from "react-icons/pi";
+import useFrames from "@/hooks/useFrames";
 
 type Props = {
   onClose: () => void
+  projectId: string
 }
 
-export default function Preview({ onClose }: Props) {
+export default function Preview({ onClose, projectId }: Props) {
   const [autoplay, setAutoplay] = useState(true)
   const { playbackSpeed } = useSettings()
   const { updateSettings } = useAppStore()
-  const { id } = useParams();
-  const projects = useProjects();
-  const project = projects.find((p) => p.id === id) as AppState["projects"][0];
-  const startingIndex = project.frames.findIndex((frame) => !frame.hidden)
-  const [index, setIndex] = useState(startingIndex);
-  const frame = project.frames[index];
 
-  const visibleFrames = project.frames.filter((frame) => !frame.hidden)
+  const { frames, visibleFrames } = useFrames(projectId)
+
+  const startingIndex = frames.findIndex((frame) => !frame.hidden) || 0
+  const [index, setIndex] = useState(startingIndex);
+  const frame = frames[index];
+
   const timer = useRef<NodeJS.Timeout>(null);
 
   const goToNext = useCallback(() => {
     const findNextIndex = () => {
-      const nextIndex = index + 1 >= project?.frames.length ? 0 : index + 1
-      if (project?.frames[nextIndex].hidden) {
+      const nextIndex = index + 1 >= (frames?.length || 0) ? 0 : index + 1
+      if (frames[nextIndex].hidden) {
         return findNextIndex()
       }
       return nextIndex
     }
     setIndex(findNextIndex())
-  }, [index, project])
+  }, [index, frames])
 
   useEffect(() => {
     if (autoplay) {
@@ -61,6 +60,11 @@ export default function Preview({ onClose }: Props) {
       document.removeEventListener('keydown', handleKeypress)
     }
   }, [onClose])
+
+  if (!frames.length) {
+    return null
+  }
+
   return (
     <div
       className="fixed flex top-0 left-0 right-0 bottom-0 bg-black/90 z-50"
@@ -97,35 +101,21 @@ export default function Preview({ onClose }: Props) {
             ))}
           </div>
         </div>
-        <Image projectId={project.id} id={frame.id} ratio="aspect-[calc(3/4)]" className="w-full" alt="" />
-        <p className="text-center text-white text-xl font-bold mt-2">{frame.caption || "\u00A0"}</p>
-        <input type="range" min={startingIndex} max={visibleFrames.length - 1} step="1" value={index} onChange={(e) => {
-          setIndex(Number(e.target.value))
-          setAutoplay(false)
-          if (timer.current) {
-            clearInterval(timer.current)
-          }
-        }} className="w-full" />
+        {frame && (
+          <>
+            <Image projectId={projectId} id={frame.id} ratio="aspect-[calc(3/4)]" className="w-full" alt="" />
+            <p className="text-center text-white text-xl font-bold mt-2">{frame.caption || "\u00A0"}</p>
+            <input type="range" min={startingIndex} max={visibleFrames.length - 1} step="1" value={index} onChange={(e) => {
+              setIndex(Number(e.target.value))
+              setAutoplay(false)
+              if (timer.current) {
+                clearInterval(timer.current)
+              }
+            }} className="w-full" />
+          </>
+        )}
 
       </div>
-      {/* <div className="aspect-[calc(3/4)] max-w-3xs m-auto relative overflow-hidden shrink-0">
-        <div
-                    className="absolute w-full h-full z-20 pointer-events-none "
-                    style={{
-                      transform: `scale(${frame.scale})`,
-                      left: frame.position.x,
-                      top: frame.position.y,
-                    }}
-                  >
-                    <Image
-                      src={frame.image}
-                      alt="Selected"
-                      fill
-                      className={`object-scale-down select-none h-auto`}
-                    />
-                  </div>
-      </div> */}
-      {/* <button className="bg-white text-black" onClick={goToNext}>Next Slide</button> */}
     </div>
   );
 }

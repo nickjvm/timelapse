@@ -4,12 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { MdDragIndicator } from "react-icons/md";
 
 import FrameImage from "@/components/Image";
-import { useProjects } from "@/store";
+import useProject from "@/hooks/useProject";
 
 export default function Compare({ projectId, a, b, onClose }: { projectId: string, a: string, b: string, onClose: () => void }) {
     const containerRef = useRef<HTMLDivElement>(null)
-    const projects = useProjects()
-    const project = projects.find((p) => p.id === projectId)
+    const project = useProject(projectId)
     const x = useMotionValue(100)
     const [mode, setMode] = useState<'side-by-side' | 'overlaid'>('side-by-side')
     const [compareWidth, setCompareWidth] = useState(x.get())

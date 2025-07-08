@@ -4,13 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { MdDragIndicator } from "react-icons/md";
 
 import { notFound, useParams } from "next/navigation";
-import { useAppStore } from "@/store";
 import FrameImage from "@/components/Image";
+import useProject from "@/hooks/useProject";
 
 export default function Compare() {
     const { id } = useParams();
-    const { projects } = useAppStore();
-    const project = projects.find((p) => p.id === id);
+    const project = useProject(id as string)
 
     if (!project) {
         notFound();
@@ -47,9 +46,9 @@ export default function Compare() {
             <div className="flex items-center justify-center">
                 {mode === 'overlaid' && (
                     <div ref={containerRef} className="relative items-center justify-center aspect-[calc(3/4)]">
-                        <FrameImage id={compare[0].id} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
+                        <FrameImage projectId={project.id} id={compare[0].id} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
                         <div className="absolute top-0 left-0 overflow-hidden" style={{ width: compareWidth + 'px' }}>
-                            <FrameImage id={compare[1].id} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
+                            <FrameImage projectId={project.id} id={compare[1].id} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
                         </div>
                         <motion.div
                             drag
@@ -64,8 +63,8 @@ export default function Compare() {
                 )}
                 {mode === 'side-by-side' && (
                     <div className="relative items-center justify-center flex gap-2">
-                        <FrameImage id={compare[0].id} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
-                        <FrameImage id={compare[1].id} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
+                        <FrameImage projectId={project.id} id={compare[0].id} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
+                        <FrameImage projectId={project.id} id={compare[1].id} ratio="aspect-[calc(3/4)]" className="w-md" alt="" />
                     </div>
                 )}
             </div>
