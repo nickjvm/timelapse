@@ -64,16 +64,18 @@ export default function Home() {
                 <span className="whitespace-nowrap flex gap-2 items-center hover:bg-white px-4 py-2 rounded">
                   <MdEdit /> Edit
                 </span>
-                <button
-                  className="hover:bg-white "
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setPlayingProjectId(project.id);
-                  }}
-                >
-                  <PiPlayFill /> Play
-                </button>
+                {project.frames.length > 0 && (
+                  <button
+                    className="hover:bg-white "
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setPlayingProjectId(project.id);
+                    }}
+                  >
+                    <PiPlayFill /> Play
+                  </button>
+                )}
               </div>
               <AlbumCover projectId={project.id} />
             </div>
