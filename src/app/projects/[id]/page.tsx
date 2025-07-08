@@ -5,7 +5,6 @@ import { notFound, useParams } from "next/navigation";
 import { MdCheck, MdCompare, MdDelete, MdEdit } from "react-icons/md";
 import { PiPlayFill } from "react-icons/pi";
 import { FaEyeSlash } from "react-icons/fa6";
-
 import {
   DndContext,
   closestCenter,
@@ -29,6 +28,7 @@ import useProject from "@/hooks/useProject";
 import Header from "@/components/Header";
 import EditFrameModal from "@/components/modals/EditFrame";
 import UploadFrame from "@/components/UploadFrame";
+import Dropzone from "@/components/Dropzone";
 
 import { useAppStore } from "@/store";
 import cn from "@/utils/cn";
@@ -112,14 +112,7 @@ export default function ProjectPage() {
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <div
-        className="h-full pb-36"
-        onClick={(e) => {
-          if (e.currentTarget === e.target) {
-            setEditing(null);
-          }
-        }}
-      >
+      <Dropzone projectId={project.id} className="h-full pb-36">
         <Header
           prevUrl="/"
           title={project.name}
@@ -240,7 +233,7 @@ export default function ProjectPage() {
             onClose={() => setCompareFrames([])}
           />
         )}
-      </div>
+      </Dropzone>
     </DndContext>
   );
 }

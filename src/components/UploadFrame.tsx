@@ -1,51 +1,19 @@
 import { ChangeEvent } from "react";
 import { MdCloudUpload } from "react-icons/md";
-import { useAppStore } from "@/store";
-import useProject from "@/hooks/useProject";
-import compressAndEncodeFile from "@/utils/compressFileUpload";
+import useFrameUpload from "@/hooks/useFrameUpload";
 
 type Props = {
   projectId: string;
 };
 export default function UploadFrame({ projectId }: Props) {
-  const project = useProject(projectId);
-  const { updateProject } = useAppStore();
-
+  const { upload } = useFrameUpload({ projectId });
   const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
+    const files = event.target.files as FileList;
     if (!files?.length) {
       return;
     }
 
-    const frames = [];
-    const filesArray = Array.from(files);
-    filesArray.sort((a, b) => (a.lastModified < b.lastModified ? -1 : 1));
-
-    for (const file of filesArray) {
-      frames.push({
-        id: crypto.randomUUID(),
-        image: await compressAndEncodeFile(file, 1024),
-        order: project?.frames.length || 0,
-        caption: new Intl.DateTimeFormat("en-US", {
-          month: "long",
-          day: "numeric",
-          year: "numeric",
-          hour: "numeric",
-          minute: "numeric",
-        }).format(new Date(file.lastModified)),
-        description: "",
-        hidden: false,
-        position: {
-          x: 0,
-          y: 0,
-        },
-        rotation: 0,
-        scale: 1,
-      });
-    }
-    updateProject(projectId, {
-      frames: [...(project?.frames || []), ...frames],
-    });
+    upload(files);
   };
 
   return (
