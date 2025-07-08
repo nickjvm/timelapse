@@ -3,7 +3,17 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import cn from '@/utils/cn';
 
-export default function SortableItem({ id, children, className, ...props }: { id: string, className?: string } & React.PropsWithChildren) {
+type Props = {
+  id: string,
+  className?: string,
+} & React.PropsWithChildren
+
+export default function SortableItem({
+  id,
+  children,
+  className,
+  ...props
+}: Props) {
   const {
     attributes,
     listeners,

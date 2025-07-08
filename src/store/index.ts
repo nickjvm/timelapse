@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { indexedDBStorage } from "./indexeddb-storage";
+import { indexedDBStorage } from "@/store/indexeddb-storage";
 
 export type Frame = {
   id: string;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAppStore } from "./index";
+import { useAppStore } from "@/store";
 
 interface StoreProviderProps {
   children: React.ReactNode;

@@ -1,14 +1,16 @@
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { useRef } from 'react'
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+
 import { BsSymmetryHorizontal, BsSymmetryVertical } from 'react-icons/bs'
 import { GoGear } from 'react-icons/go'
 import { HiOutlineMagnifyingGlass } from 'react-icons/hi2'
 import { MdDelete, MdOutlineRotateLeft } from 'react-icons/md'
 import { RiGhost2Fill, RiGhost2Line } from 'react-icons/ri'
 import { RxReset } from 'react-icons/rx'
-import { useAppStore, useSettings } from '../store'
 import { FaEye, FaEyeSlash } from 'react-icons/fa6'
-import useFrame from '../hooks/useFrame'
+
+import { useAppStore, useSettings } from '@/store'
+import useFrame from '@/hooks/useFrame'
 
 type Props = {
     setAlterationType: (alterationType: 'rotate' | 'zoom') => void,

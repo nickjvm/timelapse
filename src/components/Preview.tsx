@@ -1,7 +1,8 @@
-import { useSettings, useAppStore, PLAYBACK_SPEEDS } from "@/store";
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "./Image";
 import { PiPauseFill, PiPlayFill } from "react-icons/pi";
+
+import { useSettings, useAppStore, PLAYBACK_SPEEDS } from "@/store";
+import Image from "@/components/Image";
 import useFrames from "@/hooks/useFrames";
 
 type Props = {

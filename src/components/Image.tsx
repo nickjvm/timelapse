@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client'
 
-import { useAppStore, useSettings } from "@/store";
+import { useEffect, useRef, useState } from "react";
 import {
     HTMLMotionProps,
     motion,
@@ -9,13 +9,14 @@ import {
     useMotionValue,
     useMotionValueEvent,
 } from "motion/react";
-import { useEffect, useRef, useState } from "react";
 import { HiMiniMagnifyingGlassMinus, HiMiniMagnifyingGlassPlus } from "react-icons/hi2";
 import { MdOutlineRotateLeft, MdOutlineRotateRight } from "react-icons/md";
-import EditFrameMenu from "./EditFrameMenu";
+import { RxText } from "react-icons/rx";
+
+import EditFrameMenu from "@/components/EditFrameMenu";
 import { flipImage } from "@/utils/flipImage";
 import cn from "@/utils/cn";
-import { RxText } from "react-icons/rx";
+import { useAppStore, useSettings } from "@/store";
 import useFrame from "@/hooks/useFrame";
 
 type Props = {
