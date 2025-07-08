@@ -206,6 +206,9 @@ Image.Draggable = function ImageDraggable({
   };
 
   const onReposition = () => {
+    if (!editing) {
+      return;
+    }
     const pixelX = x.get();
     const pixelY = y.get();
     const { xPercent, yPercent } = getPositionPercentages(pixelX, pixelY);
@@ -268,8 +271,8 @@ Image.Draggable = function ImageDraggable({
 Image.Ghost = function ImageGhost() {
   const { project, frame, editing } = useImageContext();
   const { ghost } = useSettings();
-  const { visibleFrames } = useFrames(project.id);
-  const prevFrameIndex = visibleFrames.findIndex((f) => f.id === frame.id) - 1;
+  const { frames } = useFrames(project.id);
+  const prevFrameIndex = frames.findIndex((f) => f.id === frame.id) - 1;
 
   if (!editing || !ghost || prevFrameIndex < 0) {
     return null;
@@ -278,7 +281,7 @@ Image.Ghost = function ImageGhost() {
   return (
     <Image
       projectId={project.id}
-      id={visibleFrames[prevFrameIndex].id}
+      id={frames[prevFrameIndex].id}
       ratio="aspect-[calc(3/4)]"
       alt="previous frame ghost"
       className="w-full absolute top-0 opacity-30 pointer-events-none left-1/2 -translate-x-1/2"

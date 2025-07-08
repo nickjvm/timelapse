@@ -37,7 +37,7 @@ export default function Home() {
   return (
     <div>
       <Header
-        title="My Projects"
+        title="My Timelines"
         buttons={[
           <button
             key="new-project"
@@ -47,7 +47,7 @@ export default function Home() {
             )}
             onClick={createProject}
           >
-            <PiPlus /> New Project
+            <PiPlus /> New Timeline
           </button>,
         ]}
       />

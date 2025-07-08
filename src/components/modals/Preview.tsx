@@ -39,7 +39,12 @@ export default function Preview({ onClose, projectId }: Props) {
 
   useEffect(() => {
     if (autoplay) {
-      timer.current = setInterval(goToNext, PLAYBACK_SPEEDS[playbackSpeed]);
+      timer.current = setTimeout(
+        goToNext,
+        index === visibleFrames.length - 1
+          ? 3000
+          : PLAYBACK_SPEEDS[playbackSpeed]
+      );
     } else {
       if (timer.current) {
         clearInterval(timer.current);

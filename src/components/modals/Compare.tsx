@@ -105,7 +105,7 @@ export default function Compare({
         </div>
       )}
       {mode === "side-by-side" && (
-        <div className="relative items-center justify-center grid grid-cols-2 gap-2">
+        <div className="relative items-center justify-center grid grid-cols-2 gap-2 w-full max-w-3xl">
           <div className="relative">
             <Image
               projectId={projectId}

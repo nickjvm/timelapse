@@ -19,6 +19,7 @@ export default function useFrameUpload({ projectId }: { projectId: string }) {
   const prepareFiles = async (files: File[] | FileList) => {
     const frames: Frame[] = [];
     const filesArray = Array.from(files);
+    console.log(files[0]);
     filesArray.sort((a, b) => (a.lastModified < b.lastModified ? -1 : 1));
 
     for (const file of filesArray) {

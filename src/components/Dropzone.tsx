@@ -17,7 +17,7 @@ export default function Dropzone({ projectId, children, className }: Props) {
   });
 
   return (
-    <div {...getRootProps()} className={cn("h-full", className)}>
+    <div {...getRootProps()} className={cn("min-h-full", className)}>
       <input {...getInputProps()} />
       {children}
       {isDragActive && (

@@ -9,7 +9,7 @@ export default function GetStarted({ onClick }: Props) {
       <div className="text-center w-full">
         <h1 className="text-xl font-bold mb-2">👋 Hey there!</h1>
         <p>
-          Start by creating a new project. You&apos;ll be redirected to your
+          Start by creating a new timeline. You&apos;ll be redirected to your
           project page where you can upload your images.
         </p>
       </div>
@@ -18,7 +18,7 @@ export default function GetStarted({ onClick }: Props) {
         className=" bg-blue-500 text-white hover:bg-blue-800 whitespace-nowrap"
         onClick={onClick}
       >
-        <PiPlus /> New Project
+        <PiPlus /> New Timeline
       </button>
     </div>
   );

@@ -45,6 +45,9 @@ export default function EditFrameModal({
 
   useEffect(() => {
     const handleKeypress = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement) {
+        return;
+      }
       if (e.key === "ArrowLeft") {
         if (prevFrameIndex >= 0) {
           onChange(frames[prevFrameIndex].id);

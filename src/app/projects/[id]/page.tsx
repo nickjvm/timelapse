@@ -128,7 +128,7 @@ export default function ProjectPage() {
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <Dropzone projectId={project.id} className="h-full pb-36">
+      <Dropzone projectId={project.id} className="pb-36">
         <Header
           prevUrl="/"
           title={project.name}

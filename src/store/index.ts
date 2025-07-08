@@ -28,6 +28,7 @@ export const PLAYBACK_SPEEDS = {
   "1x": 1000,
   "2x": 500,
   "3x": 250,
+  "4x": 125,
 };
 export interface AppState {
   projects: Array<{
@@ -119,6 +120,7 @@ export const useAppStore = create<AppStore>()(
                   frames: p.frames.map((f) =>
                     f.id === frameId ? { ...f, ...updates } : f
                   ),
+                  updatedAt: new Date(),
                 }
               : p
           ),
@@ -128,7 +130,11 @@ export const useAppStore = create<AppStore>()(
         set((state) => ({
           projects: state.projects.map((p) =>
             p.id === projectId
-              ? { ...p, frames: p.frames.filter((f) => f.id !== frameId) }
+              ? {
+                  ...p,
+                  frames: p.frames.filter((f) => f.id !== frameId),
+                  updatedAt: new Date(),
+                }
               : p
           ),
         })),

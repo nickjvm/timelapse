@@ -8,7 +8,9 @@ export default function useActionQueue() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    // run queued actions when route changes
     runQueuedActions();
+    // OR when component unmounts
     return runQueuedActions;
   }, [pathname, searchParams]);
 
