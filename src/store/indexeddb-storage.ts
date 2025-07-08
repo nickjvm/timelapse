@@ -11,7 +11,7 @@ const DB_NAME = "timelapse-app-db";
 const DB_VERSION = 1;
 const STORE_NAME = "app-store";
 let dbPromise: Promise<IDBPDatabase<AppDB>>;
-const isBrowser = typeof window !== 'undefined';
+const isBrowser = typeof window !== "undefined";
 
 const initDB = () => {
   if (isBrowser && !dbPromise) {

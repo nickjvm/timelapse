@@ -1,12 +1,12 @@
-import React from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import cn from '@/utils/cn';
+import React from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import cn from "@/utils/cn";
 
 type Props = {
-  id: string,
-  className?: string,
-} & React.PropsWithChildren
+  id: string;
+  className?: string;
+} & React.PropsWithChildren;
 
 export default function SortableItem({
   id,
@@ -20,7 +20,7 @@ export default function SortableItem({
     setNodeRef,
     transform,
     transition,
-    isDragging
+    isDragging,
   } = useSortable({ id });
 
   const style = {
@@ -29,7 +29,18 @@ export default function SortableItem({
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} {...props} className={cn('cursor-grab', className, isDragging && 'cursor-grabbing z-100')}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      {...props}
+      className={cn(
+        "cursor-grab",
+        className,
+        isDragging && "cursor-grabbing z-100",
+      )}
+    >
       {children}
     </div>
   );

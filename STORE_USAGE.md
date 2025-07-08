@@ -174,9 +174,9 @@ export const useAppStore = create<AppStore>()(
         set((state) => ({
           newFeature: { ...state.newFeature, ...config },
         })),
-    })
+    }),
     // ... persist config
-  )
+  ),
 );
 
 // 5. Add selector

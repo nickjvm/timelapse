@@ -23,10 +23,10 @@ export type NewProject = Omit<
 >;
 
 export const PLAYBACK_SPEEDS = {
-  '1x': 1000,
-  '2x': 500,
-  '3x': 250,
-}
+  "1x": 1000,
+  "2x": 500,
+  "3x": 250,
+};
 export interface AppState {
   projects: Array<{
     id: string;
@@ -39,7 +39,7 @@ export interface AppState {
 
   settings: {
     ghost: boolean;
-    playbackSpeed: keyof typeof PLAYBACK_SPEEDS
+    playbackSpeed: keyof typeof PLAYBACK_SPEEDS;
   };
 }
 
@@ -47,10 +47,14 @@ export interface AppActions {
   addProject: (project: NewProject) => string;
   updateProject: (
     id: string,
-    updates: Partial<AppState["projects"][0]>
+    updates: Partial<AppState["projects"][0]>,
   ) => void;
   deleteProject: (id: string) => void;
-  updateFrame: (projectId: string, frameId: string, updates: Partial<Frame>) => void;
+  updateFrame: (
+    projectId: string,
+    frameId: string,
+    updates: Partial<Frame>,
+  ) => void;
   deleteFrame: (projectId: string, frameId: string) => void;
   updateSettings: (settings: Partial<AppState["settings"]>) => void;
 }
@@ -63,7 +67,7 @@ const initialState: AppState = {
   projects: [],
   settings: {
     ghost: false,
-    playbackSpeed: '1x'
+    playbackSpeed: "1x",
   },
 };
 
@@ -96,21 +100,34 @@ export const useAppStore = create<AppStore>()(
       updateProject: (id: string, updates: Partial<AppState["projects"][0]>) =>
         set((state) => ({
           projects: state.projects.map((p) =>
-            p.id === id ? { ...p, ...updates, updatedAt: new Date() } : p
+            p.id === id ? { ...p, ...updates, updatedAt: new Date() } : p,
           ),
         })),
 
-      updateFrame: (projectId: string, frameId: string, updates: Partial<Frame>) => 
+      updateFrame: (
+        projectId: string,
+        frameId: string,
+        updates: Partial<Frame>,
+      ) =>
         set((state) => ({
           projects: state.projects.map((p) =>
-            p.id === projectId ? { ...p, frames: p.frames.map((f) => f.id === frameId ? { ...f, ...updates } : f) } : p
+            p.id === projectId
+              ? {
+                  ...p,
+                  frames: p.frames.map((f) =>
+                    f.id === frameId ? { ...f, ...updates } : f,
+                  ),
+                }
+              : p,
           ),
         })),
 
       deleteFrame: (projectId: string, frameId: string) =>
         set((state) => ({
           projects: state.projects.map((p) =>
-            p.id === projectId ? { ...p, frames: p.frames.filter((f) => f.id !== frameId) } : p
+            p.id === projectId
+              ? { ...p, frames: p.frames.filter((f) => f.id !== frameId) }
+              : p,
           ),
         })),
 
@@ -132,8 +149,8 @@ export const useAppStore = create<AppStore>()(
         projects: state.projects,
         settings: state.settings,
       }),
-    }
-  )
+    },
+  ),
 );
 
 export const useProjects = () => useAppStore((state) => state.projects);

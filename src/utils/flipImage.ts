@@ -1,14 +1,17 @@
-type FlipDirection = 'horizontal' | 'vertical';
+type FlipDirection = "horizontal" | "vertical";
 
-export function flipImage(imageData: string, direction: FlipDirection): Promise<string> {
+export function flipImage(
+  imageData: string,
+  direction: FlipDirection,
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
       if (!ctx) {
-        reject(new Error('Could not get canvas context'));
+        reject(new Error("Could not get canvas context"));
         return;
       }
 
@@ -20,14 +23,14 @@ export function flipImage(imageData: string, direction: FlipDirection): Promise<
 
       // Move to the center of the canvas
       ctx.translate(
-        direction === 'horizontal' ? img.width : 0,
-        direction === 'vertical' ? img.height : 0
+        direction === "horizontal" ? img.width : 0,
+        direction === "vertical" ? img.height : 0,
       );
 
       // Flip the canvas horizontally or vertically
       ctx.scale(
-        direction === 'horizontal' ? -1 : 1,
-        direction === 'vertical' ? -1 : 1
+        direction === "horizontal" ? -1 : 1,
+        direction === "vertical" ? -1 : 1,
       );
 
       // Draw the image
@@ -38,7 +41,7 @@ export function flipImage(imageData: string, direction: FlipDirection): Promise<
 
       // Convert to base64
       try {
-        const flippedImage = canvas.toDataURL('image/jpeg');
+        const flippedImage = canvas.toDataURL("image/jpeg");
         resolve(flippedImage);
       } catch (error) {
         reject(error);
@@ -46,7 +49,7 @@ export function flipImage(imageData: string, direction: FlipDirection): Promise<
     };
 
     img.onerror = () => {
-      reject(new Error('Failed to load image'));
+      reject(new Error("Failed to load image"));
     };
 
     // Set the image source
