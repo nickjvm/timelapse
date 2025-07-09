@@ -8,11 +8,12 @@ type Props = {
   label: string;
   projectId: string;
   className?: string;
-};
+} & React.ButtonHTMLAttributes<HTMLButtonElement>;
 export default function ExportProjectButton({
   projectId,
   label,
   className,
+  ...props
 }: Props) {
   const project = useProject(projectId);
 
@@ -37,7 +38,11 @@ export default function ExportProjectButton({
     document.body.removeChild(element);
   };
   return (
-    <button onClick={exportProject} className={cn("group", className)}>
+    <button
+      className={cn("group", className)}
+      {...props}
+      onClick={exportProject}
+    >
       {label}
       <LiaFileExportSolid className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity" />
     </button>

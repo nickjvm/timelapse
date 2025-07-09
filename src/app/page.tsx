@@ -35,7 +35,7 @@ export default function Home() {
   };
 
   return (
-    <div>
+    <>
       <Header
         title="My Timelines"
         buttons={[
@@ -98,6 +98,6 @@ export default function Home() {
           onClose={() => setPlayingProjectId(null)}
         />
       )}
-    </div>
+    </>
   );
 }

@@ -9,8 +9,8 @@ import { useRouter } from "next/navigation";
 type Props = {
   label: string;
   className?: string;
-};
-export default function ImportButton({ label, className }: Props) {
+} & React.ButtonHTMLAttributes<HTMLLabelElement>;
+export default function ImportButton({ label, className, ...props }: Props) {
   const { addProject } = useAppStore();
   const { addNotification } = useNotifications();
   const router = useRouter();
@@ -81,7 +81,11 @@ export default function ImportButton({ label, className }: Props) {
   };
 
   return (
-    <label className={cn("group", className)}>
+    <label
+      className={cn("group", className)}
+      {...props}
+      onClick={(e) => e.stopPropagation()}
+    >
       {label}
       <LiaFileImportSolid className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity" />
       <input
