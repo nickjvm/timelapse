@@ -34,7 +34,7 @@ export default function Compare({
   const leftFrame = useFrame(projectId, leftFrameId);
   const rightFrame = useFrame(projectId, rightFrameId);
 
-  const { downloadImage } = useDownloadImage(containerRef);
+  const { downloadImage, isPending } = useDownloadImage(containerRef);
 
   return (
     <BaseModal
@@ -122,7 +122,10 @@ export default function Compare({
       {mode === "side-by-side" && (
         <div
           ref={containerRef}
-          className="relative items-center justify-center grid grid-cols-2 gap-2 w-full max-w-3xl"
+          className={cn(
+            "relative items-center justify-center grid grid-cols-2 gap-2 w-full max-w-3xl pb-12 pt-4 px-4",
+            isPending && "bg-black/50"
+          )}
         >
           <div className="relative">
             <Image

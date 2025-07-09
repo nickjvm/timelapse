@@ -10,7 +10,6 @@ import cn from "@/utils/cn";
 import { flipImage } from "@/utils/flipImage";
 import { useNotifications } from "@/providers/Notifications";
 import { useImageContext } from "@/components/Image";
-import useDownloadImage from "@/hooks/useDownloadImage";
 
 export default function EditFrameOptions() {
   const {
@@ -21,12 +20,11 @@ export default function EditFrameOptions() {
     position,
     scale,
     rotation,
-    containerRef,
+    downloadImage,
   } = useImageContext();
   const settings = useSettings();
   const { updateSettings, updateFrame, updateProject } = useAppStore();
   const { addNotification } = useNotifications();
-  const { downloadImage } = useDownloadImage(containerRef);
   const frameIndex = project.frames.findIndex((f) => f.id === frame.id);
 
   async function onFlip(direction: "horizontal" | "vertical") {

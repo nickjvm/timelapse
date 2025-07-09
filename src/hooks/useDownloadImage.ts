@@ -1,70 +1,53 @@
+import { useEffect, useRef, useState } from "react";
 import { toPng } from "html-to-image";
 import { useNotifications } from "@/providers/Notifications";
-import { useAppStore, useSettings } from "@/store";
 
 export default function useDownloadImage(
-  ref: React.RefObject<HTMLDivElement | null>
+  containerRef: React.RefObject<HTMLDivElement | null>
 ) {
   const { addNotification } = useNotifications();
-  const settings = useSettings();
-  const { updateSettings } = useAppStore();
+  const [isBuilding, setIsBuilding] = useState(false);
+  const filenameRef = useRef("");
 
-  // https://github.com/bubkoo/html-to-image/issues/361#issuecomment-1506037670
-  // TODO: replace with modern-screenshot? https://github.com/qq15725/modern-screenshot
-  const buildPng = async () => {
-    let dataUrl = "";
-    const minDataLength = 2000000;
-    let i = 0;
-    const maxAttempts = 10;
+  useEffect(() => {
+    if (!isBuilding || !containerRef.current) return;
 
-    while (dataUrl.length < minDataLength && i < maxAttempts) {
-      dataUrl = await toPng(ref.current as HTMLElement);
-      i += 1;
-    }
+    const buildAndDownload = async () => {
+      try {
+        // https://github.com/bubkoo/html-to-image/issues/361#issuecomment-1506037670
+        // TODO: replace with modern-screenshot? https://github.com/qq15725/modern-screenshot
+        const dataUrl = await toPng(containerRef.current!);
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = `${filenameRef.current || Date.now()}.png`;
+        link.style.display = "none";
 
-    return dataUrl;
-  };
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (err) {
+        console.error("oops, something went wrong!", err);
+        addNotification({
+          message: "Something went wrong while downloading the image.",
+          type: "error",
+        });
+      } finally {
+        setIsBuilding(false);
+      }
+    };
+
+    buildAndDownload();
+  }, [isBuilding, containerRef, addNotification]);
 
   const downloadImage = (filename: string) => {
-    if (!ref.current) {
-      return;
-    }
+    if (!containerRef.current) return;
 
-    const ghost = settings.ghost;
-
-    if (settings.ghost) {
-      updateSettings({
-        ghost: false,
-      });
-    }
-
-    setTimeout(() => {
-      buildPng()
-        .then((dataUrl) => {
-          const link = document.createElement("a");
-          link.href = dataUrl;
-          link.download = `${filename || Date.now()}.png`;
-          link.style.display = "none";
-
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-
-          updateSettings({
-            ghost,
-          });
-        })
-        .catch((err) => {
-          console.error("oops, something went wrong!", err);
-          addNotification({
-            message: "Something went wrong while downloading the image.",
-            type: "error",
-          });
-        });
-    }, 0);
+    filenameRef.current = filename;
+    setIsBuilding(true);
   };
 
   return {
+    isPending: isBuilding,
     downloadImage,
   };
 }

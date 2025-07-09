@@ -30,6 +30,7 @@ import { Frame, Project, useAppStore, useSettings } from "@/store";
 import useFrame from "@/hooks/useFrame";
 import useProject from "@/hooks/useProject";
 import useFrames from "@/hooks/useFrames";
+import useDownloadImage from "@/hooks/useDownloadImage";
 
 type AlterationsTypes = "rotate" | "zoom" | "caption" | null;
 
@@ -46,7 +47,7 @@ type ImageContext = {
     y: MotionValue<number>;
   };
   editing?: boolean;
-  containerRef: React.RefObject<HTMLDivElement | null>;
+  downloadImage: (filename: string) => void;
 };
 
 const ImageContext = createContext<ImageContext | undefined>(undefined);
@@ -85,6 +86,9 @@ export default function Image({
   const rotation = useMotionValue(frame?.rotation || 0);
 
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const { downloadImage, isPending: isDownloadPending } =
+    useDownloadImage(containerRef);
 
   useEffect(() => {
     if (!frame) {
@@ -127,7 +131,7 @@ export default function Image({
         scale,
         rotation,
         editing,
-        containerRef,
+        downloadImage,
         position: {
           x,
           y,
@@ -143,7 +147,7 @@ export default function Image({
         )}
       >
         <Image.Draggable containerRef={containerRef} />
-        <Image.Ghost />
+        {!isDownloadPending && <Image.Ghost />}
       </div>
       {editing && (
         <div className="absolute right-2 top-2">
