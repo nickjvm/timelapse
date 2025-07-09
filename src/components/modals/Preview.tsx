@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PiPauseFill, PiPlayFill } from "react-icons/pi";
+import { PiPlayFill } from "react-icons/pi";
 
 import { useSettings, useAppStore, PLAYBACK_SPEEDS } from "@/store";
 import Image from "@/components/Image";
-import useFrames from "@/hooks/useFrames";
 import { BaseModal } from "@/components/modals/Base";
+import DownloadVideo from "@/components/DownloadVideo";
+
+import useFrames from "@/hooks/useFrames";
 import cn from "@/utils/cn";
 
 type Props = {
@@ -13,7 +15,7 @@ type Props = {
 };
 
 export default function Preview({ onClose, projectId }: Props) {
-  const [autoplay, setAutoplay] = useState(true);
+  const [autoplay, setAutoplay] = useState(false);
   const { playbackSpeed } = useSettings();
   const { updateSettings } = useAppStore();
 
@@ -78,24 +80,9 @@ export default function Preview({ onClose, projectId }: Props) {
   return (
     <BaseModal open={true} onClose={onClose} variant="dark" className="flex">
       <div className="m-auto w-full max-w-md">
-        <div className="flex items-center justify-center mb-2">
+        <div className="flex items-center justify-center mb-2 px-4">
           <div>
-            <button
-              className="-ml-4 md:-ml-0 text-white flex gap-2 items-center hover:bg-white/50"
-              onClick={() => setAutoplay(!autoplay)}
-            >
-              {autoplay ? (
-                <>
-                  <PiPauseFill className="text-white w-5 h-5" />
-                  {"Pause"}
-                </>
-              ) : (
-                <>
-                  <PiPlayFill className="text-white w-5 h-5" />
-                  {"Play"}
-                </>
-              )}
-            </button>
+            <DownloadVideo projectId={projectId} speed={playbackSpeed} />
           </div>
           <div className="ml-auto flex">
             {Object.keys(PLAYBACK_SPEEDS).map((value, i) => (
@@ -130,13 +117,22 @@ export default function Preview({ onClose, projectId }: Props) {
             ))}
           </div>
         </div>
-        <Image
-          projectId={projectId}
-          id={frame.id}
-          ratio="aspect-[calc(3/4)]"
-          className="w-full"
-          alt={frame.caption || ""}
-        />
+        <button
+          type="button"
+          onClick={() => setAutoplay(!autoplay)}
+          className="group relative "
+        >
+          <span className="z-10 absolute top-1/2 left-1/2 -translate-1/2 group-hover:opacity-100 opacity-50 transition-opacity">
+            {!autoplay && <PiPlayFill className="text-white w-20 h-20" />}
+          </span>
+          <Image
+            projectId={projectId}
+            id={frame.id}
+            ratio="aspect-[calc(3/4)]"
+            className="w-full"
+            alt={frame.caption || ""}
+          />
+        </button>
         <p className="text-center text-white text-sm md:text-xl font-bold mt-2 mb-2">
           {frame.caption || "\u00A0"}
         </p>

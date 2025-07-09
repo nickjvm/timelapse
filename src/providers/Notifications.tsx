@@ -24,7 +24,7 @@ type Notification = {
 
 type NotificationContext = {
   notifications: Notification[];
-  addNotification: (notification: Omit<Notification, "id">) => void;
+  addNotification: (notification: Omit<Notification, "id">) => string;
   removeNotification: (id: string) => void;
 };
 
