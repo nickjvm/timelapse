@@ -1,16 +1,16 @@
 import { ElementType } from "react";
 import { BsSymmetryHorizontal, BsSymmetryVertical } from "react-icons/bs";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
-import { MdDelete, MdOutlineRotateLeft } from "react-icons/md";
+import { MdDelete, MdDownload, MdOutlineRotateLeft } from "react-icons/md";
 import { RiGhost2Fill, RiGhost2Line } from "react-icons/ri";
 import { RxReset } from "react-icons/rx";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
-
 import { useAppStore, useSettings } from "@/store";
 import cn from "@/utils/cn";
 import { flipImage } from "@/utils/flipImage";
 import { useNotifications } from "@/providers/Notifications";
 import { useImageContext } from "@/components/Image";
+import useDownloadImage from "@/hooks/useDownloadImage";
 
 export default function EditFrameOptions() {
   const {
@@ -21,10 +21,12 @@ export default function EditFrameOptions() {
     position,
     scale,
     rotation,
+    containerRef,
   } = useImageContext();
   const settings = useSettings();
   const { updateSettings, updateFrame, updateProject } = useAppStore();
   const { addNotification } = useNotifications();
+  const { downloadImage } = useDownloadImage(containerRef);
   const frameIndex = project.frames.findIndex((f) => f.id === frame.id);
 
   async function onFlip(direction: "horizontal" | "vertical") {
@@ -124,6 +126,12 @@ export default function EditFrameOptions() {
         label="Revert Changes"
         icon={RxReset}
         onClick={onReset}
+        color="blue"
+      />
+      <OptionButton
+        label="Download"
+        icon={MdDownload}
+        onClick={() => downloadImage(`frame-${frame.caption}-${frame.id}`)}
         color="blue"
       />
       <OptionButton

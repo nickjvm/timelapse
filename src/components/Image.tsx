@@ -46,6 +46,7 @@ type ImageContext = {
     y: MotionValue<number>;
   };
   editing?: boolean;
+  containerRef: React.RefObject<HTMLDivElement | null>;
 };
 
 const ImageContext = createContext<ImageContext | undefined>(undefined);
@@ -126,6 +127,7 @@ export default function Image({
         scale,
         rotation,
         editing,
+        containerRef,
         position: {
           x,
           y,

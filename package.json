@@ -39,6 +39,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@headlessui/react": "^2.2.4",
     "clsx": "^2.1.1",
+    "html-to-image": "^1.11.13",
     "idb": "^8.0.3",
     "motion": "^12.23.0",
     "next": "15.3.4",

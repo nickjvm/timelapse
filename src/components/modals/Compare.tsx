@@ -1,9 +1,10 @@
 "use client";
 import { motion, useMotionValue, useMotionValueEvent } from "motion/react";
 import { useRef, useState } from "react";
-import { MdDragIndicator } from "react-icons/md";
+import { MdDownload, MdDragIndicator } from "react-icons/md";
 
 import useFrame from "@/hooks/useFrame";
+import useDownloadImage from "@/hooks/useDownloadImage";
 import cn from "@/utils/cn";
 
 import Image from "@/components/Image";
@@ -33,6 +34,8 @@ export default function Compare({
   const leftFrame = useFrame(projectId, leftFrameId);
   const rightFrame = useFrame(projectId, rightFrameId);
 
+  const { downloadImage } = useDownloadImage(containerRef);
+
   return (
     <BaseModal
       open={true}
@@ -40,7 +43,7 @@ export default function Compare({
       variant="dark"
       className="flex flex-col space-y-2 items-center justify-center"
     >
-      <div className="flex items-center justify-center mb-4">
+      <div className="flex items-center justify-center mb-4 space">
         <button
           className={cn(
             "text-black px-2 py-1 !rounded-l-full border border-white w-36 text-center justify-center",
@@ -58,6 +61,18 @@ export default function Compare({
           onClick={() => setMode("overlaid")}
         >
           Overlaid
+        </button>
+        <button
+          title="Download"
+          className="!rounded-full border border-white !p-2.5 hover:bg-white hover:text-black transition-colors ml-2"
+          onClick={() =>
+            downloadImage(
+              `compare-${leftFrame?.caption}-${rightFrame?.caption}`
+            )
+          }
+        >
+          <span className="sr-only">Download Comparison</span>
+          <MdDownload className="w-5 h-5" />
         </button>
       </div>
       {mode === "overlaid" && (
@@ -105,7 +120,10 @@ export default function Compare({
         </div>
       )}
       {mode === "side-by-side" && (
-        <div className="relative items-center justify-center grid grid-cols-2 gap-2 w-full max-w-3xl">
+        <div
+          ref={containerRef}
+          className="relative items-center justify-center grid grid-cols-2 gap-2 w-full max-w-3xl"
+        >
           <div className="relative">
             <Image
               projectId={projectId}
