@@ -35,4 +35,5 @@ a {
 button,
 .btn {
   @apply flex items-center gap-2 rounded p-4 py-2 transition;
+  @apply text-sm md:text-base;
 }

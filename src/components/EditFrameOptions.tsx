@@ -77,7 +77,7 @@ export default function EditFrameOptions() {
   };
 
   return (
-    <div className="z-50 px-2 py-0.5 bg-white transition-opacity opacity-20 hover:shadow hover:opacity-85 w-13 rounded-full  relative flex flex-col justify-center items-center">
+    <div className="z-50 px-2 py-0.5 bg-white transition-opacity md:opacity-20 hover:shadow hover:opacity-85 md:w-13 w-10 rounded-full  relative flex flex-col justify-center items-center">
       <OptionButton
         label="Rotate"
         icon={MdOutlineRotateLeft}
@@ -180,11 +180,11 @@ function OptionButton({
       </span>
       <div
         className={cn(
-          `rounded-full group-hover:bg-${color}-600 p-3 hover:text-white relative`,
+          `rounded-full group-hover:bg-${color}-600 p-2 md:p-3 hover:text-white relative`,
           isActive && `bg-${color}-600 text-white`
         )}
       >
-        <Icon className="w-6 h-6" />
+        <Icon className="w-4 h-4 md:w-6 md:h-6" />
       </div>
     </button>
   );

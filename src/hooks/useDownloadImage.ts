@@ -1,4 +1,4 @@
-import * as htmlToImage from "html-to-image";
+import { toPng } from "html-to-image";
 import { useNotifications } from "@/providers/Notifications";
 import { useAppStore, useSettings } from "@/store";
 
@@ -8,6 +8,22 @@ export default function useDownloadImage(
   const { addNotification } = useNotifications();
   const settings = useSettings();
   const { updateSettings } = useAppStore();
+
+  // https://github.com/bubkoo/html-to-image/issues/361#issuecomment-1506037670
+  // TODO: replace with modern-screenshot? https://github.com/qq15725/modern-screenshot
+  const buildPng = async () => {
+    let dataUrl = "";
+    const minDataLength = 2000000;
+    let i = 0;
+    const maxAttempts = 10;
+
+    while (dataUrl.length < minDataLength && i < maxAttempts) {
+      dataUrl = await toPng(ref.current as HTMLElement);
+      i += 1;
+    }
+
+    return dataUrl;
+  };
 
   const downloadImage = (filename: string) => {
     if (!ref.current) {
@@ -23,8 +39,7 @@ export default function useDownloadImage(
     }
 
     setTimeout(() => {
-      htmlToImage
-        .toPng(ref.current as HTMLElement)
+      buildPng()
         .then((dataUrl) => {
           const link = document.createElement("a");
           link.href = dataUrl;

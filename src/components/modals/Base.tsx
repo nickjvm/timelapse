@@ -26,7 +26,7 @@ export function BaseModal({
         <div className="flex min-h-full items-center justify-center p-4">
           <button
             onClick={onClose}
-            className="z-10 absolute top-4 right-4 text-white !p-4 opacity-50 hover:opacity-100"
+            className="z-10 absolute top-4 right-4 text-white !p-4 md:opacity-50 hover:opacity-100"
           >
             <RiCloseLargeLine className="w-5 h-5" />
           </button>

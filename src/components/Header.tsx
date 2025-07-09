@@ -31,7 +31,12 @@ export default function Header({
             <FaArrowLeftLong />
           </Link>
         )}
-        <h2 className="text-xl font-bold w-full">
+        <h2
+          className={cn(
+            "text-sm md:text-xl font-bold w-full",
+            !editing && "line-clamp-1"
+          )}
+        >
           {!onEdit && title}
           {onEdit && (
             <>
@@ -40,7 +45,7 @@ export default function Header({
                   onClick={() => setEditing(!editing)}
                   className="group !p-0"
                 >
-                  {title}
+                  <div className="line-clamp-1">{title}</div>
                   <MdEdit className="opacity-30 transition-opacity group-hover:opacity-100 w-5 h-5" />
                 </button>
               )}

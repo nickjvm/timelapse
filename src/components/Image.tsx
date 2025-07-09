@@ -329,7 +329,7 @@ Image.Caption = function ImageCaption() {
           autoFocus={!frame.caption}
           defaultValue={frame.caption || ""}
           onBlur={onChange}
-          className="absolute bottom-2 left-2 right-2 bg-black/75 text-white p-2.5 px-4 text-lg rounded-full text-center"
+          className="absolute bottom-2 left-2 right-2 bg-black/75 text-white p-2 md:p-2.5 px-4 md:text-lg rounded-full text-center"
         />
       </label>
     );
@@ -344,12 +344,12 @@ Image.Zoom = function ImageZoom() {
   }
 
   return (
-    <div className="flex items-center gap-4 mt-3 absolute bottom-2 left-2 right-2 bg-black/75 rounded-full">
+    <div className="flex items-center md:gap-4 mt-3 absolute bottom-2 left-2 right-2 bg-black/75 rounded-full">
       <button
         onClick={() => scale.set(scale.get() - 0.1)}
         className="!rounded-l-full p-1 cursor-pointer text-white hover:text-black hover:bg-white/75 transition-colors"
       >
-        <HiMiniMagnifyingGlassMinus className="w-8 h-8" />
+        <HiMiniMagnifyingGlassMinus className="w-6 h-6 md:w-8 md:h-8" />
       </button>
       <input
         type="range"
@@ -364,7 +364,7 @@ Image.Zoom = function ImageZoom() {
         onClick={() => scale.set(scale.get() + 0.1)}
         className="!rounded-r-full p-1 cursor-pointer text-white hover:text-black hover:bg-white/75 transition-colors"
       >
-        <HiMiniMagnifyingGlassPlus className="w-8 h-8" />
+        <HiMiniMagnifyingGlassPlus className="w-6 h-6 md:w-8 md:h-8" />
       </button>
     </div>
   );
@@ -378,12 +378,12 @@ Image.Rotate = function ImageRotate() {
   }
 
   return (
-    <div className="flex items-center gap-4 mt-3 absolute bottom-2 left-2 right-2 bg-black/75 rounded-full">
+    <div className="flex items-center md:gap-4 mt-3 absolute bottom-2 left-2 right-2 bg-black/75 rounded-full">
       <button
         onClick={() => rotation.set(rotation.get() - 1)}
         className="!rounded-l-full p-1 cursor-pointer text-white hover:text-black hover:bg-white/75 transition-colors"
       >
-        <MdOutlineRotateLeft className="w-8 h-8" />
+        <MdOutlineRotateLeft className="w-6 h-6 md:w-8 md:h-8" />
       </button>
       <input
         type="range"
@@ -398,7 +398,7 @@ Image.Rotate = function ImageRotate() {
         onClick={() => rotation.set(rotation.get() + 1)}
         className="!rounded-r-full p-1 cursor-pointer text-white hover:text-black hover:bg-white/75 transition-colors"
       >
-        <MdOutlineRotateRight className="w-8 h-8" />
+        <MdOutlineRotateRight className="w-6 h-6 md:w-8 md:h-8" />
       </button>
     </div>
   );

@@ -146,7 +146,7 @@ export default function ProjectPage() {
                         <FaEyeSlash className="absolute top-1/2 left-1/2 -translate-1/2 w-8 h-8 text-black z-10" />
                       )}
                       <div
-                        className="z-10 absolute top-0 left-0 w-full flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity p-2"
+                        className="z-10 absolute top-0 left-0 w-full flex items-center justify-between md:opacity-0 group-hover:opacity-100 transition-opacity p-2"
                         data-no-dnd="true"
                       >
                         <button
@@ -154,18 +154,18 @@ export default function ProjectPage() {
                           className="!gap-1 !py-1 !px-2 bg-white/50 rounded-lg hover:bg-white"
                         >
                           <MdEdit className="w-5 h-5" />
-                          Edit
+                          <span className="hidden md:inline">Edit</span>
                         </button>
                         <button
                           onClick={() => handleFrameDelete(frame.id)}
                           className="!gap-1 !py-1 !px-2 text-red-800 bg-white/50 rounded-lg hover:bg-red-800 hover:text-white"
                         >
-                          Delete
+                          <span className="hidden md:inline">Delete</span>
                           <MdDelete className="w-5 h-5" />
                         </button>
                       </div>
                       <div
-                        className="z-10 absolute bottom-0 left-0 w-full flex items-center justify-center p-2"
+                        className="z-10 absolute bottom-6 md:bottom-0 left-0 w-full flex items-center justify-center p-2"
                         data-no-dnd="true"
                       >
                         <input
@@ -178,7 +178,7 @@ export default function ProjectPage() {
                         />
                         <label
                           htmlFor={`compare-${frame.id}`}
-                          className="btn !gap-1 !py-1 !px-2 bg-white/50 rounded-lg hover:bg-white hover:text-black opacity-0 group-hover:opacity-100 peer-checked:opacity-100 peer-checked:bg-white"
+                          className="btn !gap-1 !py-1 !px-2 bg-white/50 rounded-lg hover:bg-white hover:text-black md:opacity-0 group-hover:opacity-100 peer-checked:opacity-100 peer-checked:bg-white"
                         >
                           {compareFrames.includes(frame.id) ? (
                             <MdCheck className="w-5 h-5" />
