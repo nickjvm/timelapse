@@ -1,12 +1,21 @@
+import { ChangeEvent } from "react";
 import compressAndEncodeFile from "@/utils/compressFileUpload";
 import { useAppStore, Frame } from "@/store";
 import useProject from "@/hooks/useProject";
-import { ChangeEvent } from "react";
+import { useNotifications } from "@/providers/Notifications";
 
-export default function useFrameUpload({ projectId }: { projectId: string }) {
-  const { updateProject } = useAppStore();
-  const project = useProject(projectId);
+type Options = {
+  onSuccess?: (id: string) => void;
+  onError?: (error: Error) => void;
+};
 
+export default function useFrameUpload(
+  projectId: string,
+  options: Options = {}
+) {
+  const { updateProject, addProject } = useAppStore();
+  const project = useProject(projectId, true);
+  const { addNotification } = useNotifications();
   const onChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files as FileList;
     if (!files?.length) {
@@ -19,7 +28,7 @@ export default function useFrameUpload({ projectId }: { projectId: string }) {
   const prepareFiles = async (files: File[] | FileList) => {
     const frames: Frame[] = [];
     const filesArray = Array.from(files);
-    console.log(files[0]);
+
     filesArray.sort((a, b) => (a.lastModified < b.lastModified ? -1 : 1));
 
     for (const file of filesArray) {
@@ -49,11 +58,32 @@ export default function useFrameUpload({ projectId }: { projectId: string }) {
     if (!files.length) {
       return;
     }
-    const frames = await prepareFiles(files);
 
-    updateProject(projectId, {
-      frames: [...(project?.frames || []), ...frames],
-    });
+    try {
+      const frames = await prepareFiles(files);
+
+      let id = projectId;
+      if (project) {
+        updateProject(projectId, {
+          frames: [...(project?.frames || []), ...frames],
+        });
+      } else {
+        id = addProject({
+          name: `My Timeline ${new Date().toLocaleDateString()}`,
+          frames,
+        });
+
+        options.onSuccess?.(id);
+      }
+    } catch (error) {
+      console.error("Error uploading files", error);
+
+      addNotification({
+        message: "Error uploading images. Please try again",
+        type: "error",
+      });
+      options.onError?.(error as Error);
+    }
   };
 
   return { upload: uploadFiles, onChange };

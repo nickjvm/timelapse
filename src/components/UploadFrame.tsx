@@ -5,7 +5,7 @@ type Props = {
   projectId: string;
 };
 export default function UploadFrame({ projectId }: Props) {
-  const { onChange } = useFrameUpload({ projectId });
+  const { onChange } = useFrameUpload(projectId);
 
   return (
     <div className="block w-full relative shrink-0">

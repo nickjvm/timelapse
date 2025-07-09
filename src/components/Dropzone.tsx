@@ -6,14 +6,28 @@ import cn from "@/utils/cn";
 type Props = {
   projectId: string;
   className?: string;
+  onSuccess?: (id: string) => void;
+  onError?: (error: Error) => void;
 } & React.PropsWithChildren;
-export default function Dropzone({ projectId, children, className }: Props) {
-  const { upload: onDrop } = useFrameUpload({ projectId });
+export default function Dropzone({
+  projectId,
+  children,
+  className,
+  onSuccess,
+  onError,
+}: Props) {
+  const { upload: onDrop } = useFrameUpload(projectId, {
+    onSuccess,
+    onError,
+  });
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     noClick: true,
     noKeyboard: true,
+    accept: {
+      "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"],
+    },
   });
 
   return (

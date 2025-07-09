@@ -62,9 +62,9 @@ export default function NotificationProvider({
     []
   );
 
-  const removeNotification = (id: string) => {
+  const removeNotification = useCallback((id: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
-  };
+  }, []);
 
   return (
     <NotificationContext.Provider

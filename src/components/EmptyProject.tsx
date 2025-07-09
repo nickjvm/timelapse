@@ -5,7 +5,7 @@ type Props = {
   projectId: string;
 };
 export default function EmptyProject({ projectId }: Props) {
-  const { onChange } = useFrameUpload({ projectId });
+  const { onChange } = useFrameUpload(projectId);
 
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-lg mx-auto shadow-lg rounded-xl py-12 px-4 mt-8 bg-neutral-50 space-y-8 border border-neutral-200">
