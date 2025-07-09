@@ -80,34 +80,35 @@ export default function Preview({ onClose, projectId }: Props) {
       <div className="m-auto w-full max-w-md">
         <div className="flex items-center justify-center mb-2">
           <div>
-            {autoplay ? (
-              <button
-                className="text-white flex gap-2 items-center"
-                onClick={() => setAutoplay(false)}
-              >
-                <PiPauseFill className="text-white w-5 h-5" /> {"Pause"}
-              </button>
-            ) : (
-              <button
-                className="text-white flex gap-2 items-center"
-                onClick={() => setAutoplay(true)}
-              >
-                <PiPlayFill className="text-white w-5 h-5" /> {"Play"}
-              </button>
-            )}
+            <button
+              className="-ml-4 md:-ml-0 text-white flex gap-2 items-center hover:bg-white/50"
+              onClick={() => setAutoplay(!autoplay)}
+            >
+              {autoplay ? (
+                <>
+                  <PiPauseFill className="text-white w-5 h-5" />
+                  {"Pause"}
+                </>
+              ) : (
+                <>
+                  <PiPlayFill className="text-white w-5 h-5" />
+                  {"Play"}
+                </>
+              )}
+            </button>
           </div>
           <div className="ml-auto flex">
             {Object.keys(PLAYBACK_SPEEDS).map((value, i) => (
               <label
                 key={value}
                 className={cn(
-                  "flex gap-2 items-center cursor-pointer border border-white px-2 !rounded-none",
+                  "flex gap-2 items-center cursor-pointer border border-r-0 border-white px-2 !rounded-none",
                   value === playbackSpeed
                     ? "bg-white text-black"
                     : "text-white",
                   i === Object.keys(PLAYBACK_SPEEDS).length - 1 &&
-                    "!rounded-r-full border-l-0",
-                  i === 0 && "!rounded-l-full border-r-0"
+                    "!rounded-r-full border-r",
+                  i === 0 && "!rounded-l-full"
                 )}
               >
                 <input

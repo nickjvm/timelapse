@@ -329,7 +329,7 @@ Image.Caption = function ImageCaption() {
           autoFocus={!frame.caption}
           defaultValue={frame.caption || ""}
           onBlur={onChange}
-          className="absolute bottom-2 left-2 right-2 bg-black/75 text-white p-2 md:p-2.5 px-4 md:text-lg rounded-full text-center"
+          className="absolute bottom-2 left-2 right-2 bg-black/75 text-white p-2 md:p-2.5 px-4 text-xs md:text-lg rounded-full text-center"
         />
       </label>
     );

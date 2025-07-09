@@ -52,7 +52,7 @@ export default function SettingsMenu() {
         {isHomePage && (
           <MenuItem>
             <ImportProjectButton
-              label="Import Project"
+              label="Import Timeline"
               className="px-4 py-2 flex w-full justify-between items-center hover:bg-white/50 transition-colors"
             />
           </MenuItem>
@@ -60,7 +60,7 @@ export default function SettingsMenu() {
         {id && (
           <MenuItem>
             <ExportButton
-              label="Export Project"
+              label="Export Timeline"
               projectId={id as string}
               className="px-4 py-2 flex w-full justify-between items-center hover:bg-white/50 transition-colors"
             />
@@ -72,7 +72,7 @@ export default function SettingsMenu() {
               className="group px-4 py-2 flex w-full justify-between items-center hover:bg-white/50 text-red-700 md:text-inherit md:hover:text-red-700 transition-colors"
               onClick={handleDelete}
             >
-              Delete Project
+              Delete Timeline
               <MdDelete className="w-5 h-5 md:group-hover:text-red-700 md:opacity-50 group-hover:opacity-100 transition-opacity" />
             </button>
           </MenuItem>

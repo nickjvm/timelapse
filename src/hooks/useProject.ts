@@ -11,8 +11,7 @@ export default function useProject(projectId: string) {
   useEffect(() => {
     if (!project) {
       addNotification({
-        title: "Project Not Found",
-        message: `Project not found`,
+        message: "Timeline not found",
         type: "error",
       });
     }

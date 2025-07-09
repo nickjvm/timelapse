@@ -71,10 +71,10 @@ export default function EditFrameModal({
 
   return (
     <BaseModal open={true} onClose={onClose} variant="dark" className="flex">
-      <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex items-center px-2 pointer-events-none text-black">
+      <div className="absolute bottom-2 md:bottom-auto md:top-1/2 left-0 right-0 md:-translate-y-1/2 flex items-center px-2 pointer-events-none text-black">
         {prevFrameIndex >= 0 && (
           <button
-            className="bg-white/50 h-12 !px-1 hover:bg-white pointer-events-auto mr-auto"
+            className="bg-white/80 md:bg-white/50 h-12 !px-1 hover:bg-white pointer-events-auto mr-auto"
             onClick={handleChange("prev")}
           >
             <MdKeyboardArrowLeft className="h-8 w-8" />
@@ -82,7 +82,7 @@ export default function EditFrameModal({
         )}
         {nextFrameIndex < frames.length && (
           <button
-            className="bg-white/50 h-12 !px-1 hover:bg-white pointer-events-auto ml-auto"
+            className="bg-white/80 md:bg-white/50 h-12 !px-1 hover:bg-white pointer-events-auto ml-auto"
             onClick={handleChange("next")}
           >
             <MdKeyboardArrowRight className="h-8 w-8" />

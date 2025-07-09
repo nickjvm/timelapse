@@ -77,7 +77,7 @@ export default function EditFrameOptions() {
   };
 
   return (
-    <div className="z-50 px-2 py-0.5 bg-white transition-opacity md:opacity-20 hover:shadow hover:opacity-85 md:w-13 w-10 rounded-full  relative flex flex-col justify-center items-center">
+    <div className="z-50 px-2 py-0.5 bg-white transition-opacity opacity-60 md:opacity-20 hover:shadow md:hover:opacity-85 md:w-13 w-10 rounded-full  relative flex flex-col justify-center items-center">
       <OptionButton
         label="Rotate"
         icon={MdOutlineRotateLeft}
