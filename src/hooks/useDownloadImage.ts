@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { toPng } from "html-to-image";
 import { useNotifications } from "@/providers/Notifications";
+import { domToPng } from "modern-screenshot";
 
 export default function useDownloadImage(
   containerRef: React.RefObject<HTMLDivElement | null>
@@ -14,9 +14,7 @@ export default function useDownloadImage(
 
     const buildAndDownload = async () => {
       try {
-        // https://github.com/bubkoo/html-to-image/issues/361#issuecomment-1506037670
-        // TODO: replace with modern-screenshot? https://github.com/qq15725/modern-screenshot
-        const dataUrl = await toPng(containerRef.current!);
+        const dataUrl = await domToPng(containerRef.current!);
         const link = document.createElement("a");
         link.href = dataUrl;
         link.download = `${filenameRef.current || Date.now()}.png`;
