@@ -12,6 +12,7 @@ import GetStarted from "@/components/GetStarted";
 import cn from "@/utils/cn";
 import { useState } from "react";
 import Preview from "@/components/modals/Preview";
+import SettingsMenu from "@/components/SettingsMenu";
 
 export default function Home() {
   const [playingProjectId, setPlayingProjectId] = useState<string | null>(null);
@@ -26,7 +27,6 @@ export default function Home() {
   const createProject = () => {
     const newProject = {
       name: `My Timeline ${new Date().toLocaleDateString()}`,
-      description: "",
       frames: [],
     };
     const id = addProject(newProject);
@@ -49,6 +49,7 @@ export default function Home() {
           >
             <PiPlus /> New Timeline
           </button>,
+          <SettingsMenu key="settings" />,
         ]}
       />
       {!projects.length && <GetStarted onClick={createProject} />}

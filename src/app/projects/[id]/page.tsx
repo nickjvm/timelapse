@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
-import { notFound, useParams, useRouter } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import { MdCheck, MdCompare, MdDelete, MdEdit } from "react-icons/md";
 import { PiPlayFill } from "react-icons/pi";
 import { FaEyeSlash } from "react-icons/fa6";
@@ -29,11 +29,11 @@ import Header from "@/components/Header";
 import EditFrameModal from "@/components/modals/EditFrame";
 import UploadFrame from "@/components/UploadFrame";
 import Dropzone from "@/components/Dropzone";
+import SettingsMenu from "@/components/SettingsMenu";
 
 import { useAppStore } from "@/store";
 import cn from "@/utils/cn";
 import EmptyProject from "@/components/EmptyProject";
-import useActionQueue from "@/hooks/useActionQueue";
 import { useNotifications } from "@/providers/Notifications";
 
 export default function ProjectPage() {
@@ -42,10 +42,8 @@ export default function ProjectPage() {
   const project = useProject(id as string);
   const [editing, setEditing] = useState<string | null>(null);
   const [compareFrames, setCompareFrames] = useState<string[]>([]);
-  const { updateProject, deleteProject } = useAppStore();
-  const { queueAction } = useActionQueue();
+  const { updateProject } = useAppStore();
   const { addNotification } = useNotifications();
-  const router = useRouter();
 
   const sensors = useSensors(
     useSensor(SmartPointerSensor),
@@ -90,22 +88,6 @@ export default function ProjectPage() {
     }
   }
 
-  function handleDelete() {
-    if (!project) {
-      return;
-    }
-    if (confirm("Are you sure you want to delete this project?")) {
-      queueAction(() => {
-        deleteProject(project.id);
-        addNotification({
-          message: `Project ${project.name} deleted.`,
-          type: "success",
-        });
-      });
-      router.push("/");
-    }
-  }
-
   function handleFrameDelete(id: string) {
     if (!project) {
       return;
@@ -135,13 +117,6 @@ export default function ProjectPage() {
           onEdit={(name) => updateProject(project.id, { name })}
           buttons={[
             <button
-              key="delete"
-              className=" bg-white text-red-800 hover:bg-white hover:underline text-sm"
-              onClick={handleDelete}
-            >
-              Delete
-            </button>,
-            <button
               key="play"
               className={cn(
                 " bg-blue-500 text-white",
@@ -153,6 +128,7 @@ export default function ProjectPage() {
             >
               <PiPlayFill /> Play
             </button>,
+            <SettingsMenu key="settings" />,
           ]}
         />
         {project.frames.length === 0 && <EmptyProject projectId={project.id} />}

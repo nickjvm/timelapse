@@ -1,6 +1,5 @@
 "use client";
 
-import cn from "@/utils/cn";
 import {
   useContext,
   createContext,
@@ -8,8 +7,11 @@ import {
   useState,
   useEffect,
   useRef,
+  useCallback,
 } from "react";
 import { IoCloseOutline } from "react-icons/io5";
+
+import cn from "@/utils/cn";
 
 type Notification = {
   title?: string;
@@ -47,19 +49,23 @@ export default function NotificationProvider({
 }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const addNotification = (notification: Omit<Notification, "id">) => {
-    const id = crypto.randomUUID();
-    setNotifications((prev) => [
-      ...prev,
-      { id, timeout: 5000, dismissable: true, ...notification },
-    ]);
+  const addNotification = useCallback(
+    (notification: Omit<Notification, "id">) => {
+      const id = crypto.randomUUID();
+      setNotifications((prev) => [
+        ...prev,
+        { id, timeout: 5000, dismissable: true, ...notification },
+      ]);
 
-    return id;
-  };
+      return id;
+    },
+    []
+  );
 
   const removeNotification = (id: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
+
   return (
     <NotificationContext.Provider
       value={{

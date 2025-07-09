@@ -5,9 +5,7 @@ import { indexedDBStorage } from "@/store/indexeddb-storage";
 export type Frame = {
   id: string;
   image: string;
-  order: number;
   caption: string;
-  description: string;
   hidden: boolean;
   position: {
     x: number;
@@ -34,7 +32,6 @@ export interface AppState {
   projects: Array<{
     id: string;
     name: string;
-    description: string;
     frames: Frame[];
     createdAt: Date;
     updatedAt: Date;
