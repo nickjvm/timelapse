@@ -2,6 +2,7 @@ import React from "react";
 import { useDropzone } from "react-dropzone";
 import useFrameUpload from "@/hooks/useFrameUpload";
 import cn from "@/utils/cn";
+import { useNotifications } from "@/providers/Notifications";
 
 type Props = {
   projectId: string;
@@ -16,6 +17,7 @@ export default function Dropzone({
   onSuccess,
   onError,
 }: Props) {
+  const { addNotification } = useNotifications();
   const { upload: onDrop } = useFrameUpload(projectId, {
     onSuccess,
     onError,
@@ -25,13 +27,21 @@ export default function Dropzone({
     onDrop,
     noClick: true,
     noKeyboard: true,
+    onDropRejected: (files) => {
+      addNotification({
+        message: `${files.length} file${
+          files.length === 1 ? "" : "s"
+        } could not be uploaded. Only images are allowed.`,
+        type: "error",
+      });
+    },
     accept: {
       "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"],
     },
   });
 
   return (
-    <div {...getRootProps()} className={cn("min-h-full", className)}>
+    <div {...getRootProps()} className={cn("grow", className)}>
       <input {...getInputProps()} />
       {children}
       {isDragActive && (

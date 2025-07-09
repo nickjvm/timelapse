@@ -1,19 +1,18 @@
 import { ChangeEvent } from "react";
-import { Project } from "@/store";
-import { useAppStore } from "@/store";
-import { useNotifications } from "@/providers/Notifications";
 import { LiaFileImportSolid } from "react-icons/lia";
+
+import { Project, useAppStore } from "@/store";
+import { useNotifications } from "@/providers/Notifications";
 import cn from "@/utils/cn";
-import { useRouter } from "next/navigation";
 
 type Props = {
   label: string;
   className?: string;
 } & React.ButtonHTMLAttributes<HTMLLabelElement>;
+
 export default function ImportButton({ label, className, ...props }: Props) {
   const { addProject } = useAppStore();
   const { addNotification } = useNotifications();
-  const router = useRouter();
 
   const validateJson = (json: Project) => {
     const hasName = !!json.name;
@@ -45,7 +44,7 @@ export default function ImportButton({ label, className, ...props }: Props) {
       try {
         const json = validateJson(JSON.parse(e.target?.result as string));
         if (json) {
-          const id = addProject({
+          addProject({
             name: json.name,
             frames: json.frames.map((frame) => ({
               id: crypto.randomUUID(),
@@ -60,8 +59,6 @@ export default function ImportButton({ label, className, ...props }: Props) {
               scale: frame.scale || 1,
             })),
           });
-
-          router.push(`/projects/${id}`);
 
           addNotification({
             message: `Project ${json.name} imported.`,

@@ -6,7 +6,6 @@ import { PiPlayFill, PiPlus } from "react-icons/pi";
 import { useRouter } from "next/navigation";
 
 import { useAppStore } from "@/store";
-import { useNotifications } from "@/providers/Notifications";
 
 import AlbumCover from "@/components/AlbumCover";
 import Header from "@/components/Header";
@@ -20,7 +19,6 @@ import Dropzone from "@/components/Dropzone";
 export default function Home() {
   const [playingProjectId, setPlayingProjectId] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
-  const { addNotification } = useNotifications();
   const { projects } = useAppStore();
   const sortedProjects = projects.toSorted(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
@@ -29,27 +27,21 @@ export default function Home() {
   const router = useRouter();
   const { addProject } = useAppStore();
 
+  const handleSuccess = (id: string) => {
+    setIsPending(true);
+    router.push(`/projects/${id}`);
+  };
   const createProject = () => {
     const newProject = {
       name: `My Timeline ${new Date().toLocaleDateString()}`,
       frames: [],
     };
     const id = addProject(newProject);
-
-    router.push(`/projects/${id}`);
-  };
-
-  const handleUploadSuccess = (id: string) => {
-    setIsPending(true);
-    router.push(`/projects/${id}`);
-    addNotification({
-      message: "Photos imported successfully!",
-      type: "success",
-    });
+    handleSuccess(id);
   };
 
   return (
-    <Dropzone projectId={""} onSuccess={handleUploadSuccess}>
+    <Dropzone projectId={""} onSuccess={handleSuccess}>
       <Header
         title="My Timelines"
         buttons={[
@@ -68,7 +60,7 @@ export default function Home() {
       />
       {!isPending && (
         <>
-          {!projects.length && <GetStarted onSuccess={handleUploadSuccess} />}
+          {!projects.length && <GetStarted onSuccess={handleSuccess} />}
           {projects.length > 0 && (
             <div className="p-4 grid grid-cols-2 md:grid-cols-3 max-w-5xl mx-auto gap-4">
               {sortedProjects.map((project) => (
