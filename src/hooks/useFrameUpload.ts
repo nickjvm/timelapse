@@ -26,7 +26,6 @@ export default function useFrameUpload({ projectId }: { projectId: string }) {
       frames.push({
         id: crypto.randomUUID(),
         image: await compressAndEncodeFile(file, 1024),
-        order: project?.frames.length || 0,
         caption: new Intl.DateTimeFormat("en-US", {
           month: "long",
           day: "numeric",
@@ -34,7 +33,6 @@ export default function useFrameUpload({ projectId }: { projectId: string }) {
           hour: "numeric",
           minute: "numeric",
         }).format(new Date(file.lastModified)),
-        description: "",
         hidden: false,
         position: {
           x: 0,
