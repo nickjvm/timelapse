@@ -18,3 +18,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the app.
 
+
+## Examples
+
+To get started quickly, try download [project-export.json](examples/project-export.json) and use the import timeline feature to load it into the app.
