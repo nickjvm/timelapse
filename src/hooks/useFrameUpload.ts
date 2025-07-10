@@ -16,6 +16,7 @@ export default function useFrameUpload(
   const { updateProject, addProject } = useAppStore();
   const project = useProject(projectId, true);
   const { addNotification } = useNotifications();
+
   const onChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files as FileList;
     if (!files?.length) {
@@ -32,24 +33,26 @@ export default function useFrameUpload(
     filesArray.sort((a, b) => (a.lastModified < b.lastModified ? -1 : 1));
 
     for (const file of filesArray) {
-      frames.push({
-        id: crypto.randomUUID(),
-        image: await compressAndEncodeFile(file, 1024),
-        caption: new Intl.DateTimeFormat("en-US", {
-          month: "long",
-          day: "numeric",
-          year: "numeric",
-          hour: "numeric",
-          minute: "numeric",
-        }).format(new Date(file.lastModified)),
-        hidden: false,
-        position: {
-          x: 0,
-          y: 0,
-        },
-        rotation: 0,
-        scale: 1,
-      });
+      if (file.type.startsWith("image/")) {
+        frames.push({
+          id: crypto.randomUUID(),
+          image: await compressAndEncodeFile(file, 1024),
+          caption: new Intl.DateTimeFormat("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+          }).format(new Date(file.lastModified)),
+          hidden: false,
+          position: {
+            x: 0,
+            y: 0,
+          },
+          rotation: 0,
+          scale: 1,
+        });
+      }
     }
     return frames;
   };
@@ -62,6 +65,15 @@ export default function useFrameUpload(
     try {
       const frames = await prepareFiles(files);
 
+      if (frames.length < files.length) {
+        const skippedFileCount = files.length - frames.length;
+        addNotification({
+          message: `${skippedFileCount} file${
+            skippedFileCount === 1 ? "" : "s"
+          } could not be imported. Only image files are allowed.`,
+          type: "error",
+        });
+      }
       let id = projectId;
       if (project) {
         updateProject(projectId, {
@@ -76,10 +88,10 @@ export default function useFrameUpload(
         options.onSuccess?.(id);
       }
     } catch (error) {
-      console.error("Error uploading files", error);
+      console.error("Error importing files", error);
 
       addNotification({
-        message: "Error uploading images. Please try again",
+        message: "Error importing photos. Please try again",
         type: "error",
       });
       options.onError?.(error as Error);

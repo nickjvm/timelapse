@@ -32,6 +32,7 @@ export default function Home() {
     setIsPending(true);
     router.push(`/projects/${id}`);
   };
+
   const createProject = () => {
     const newProject = {
       name: `My Timeline ${new Date().toLocaleDateString()}`,

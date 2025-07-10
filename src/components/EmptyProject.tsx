@@ -1,5 +1,5 @@
-import { PiPlus } from "react-icons/pi";
 import useFrameUpload from "@/hooks/useFrameUpload";
+import { LuImageUp } from "react-icons/lu";
 
 type Props = {
   projectId: string;
@@ -12,7 +12,7 @@ export default function EmptyProject({ projectId }: Props) {
       <div className="text-center w-full">
         <h1 className="text-xl font-bold mb-2">Your timeline is empty!</h1>
         <p>
-          To get started, upload some images. You can drag images on to this
+          To get started, import some photos. You can drag files on to this
           screen or click the button below.
         </p>
       </div>
@@ -27,7 +27,7 @@ export default function EmptyProject({ projectId }: Props) {
           onChange={onChange}
           className="absolute top-0 left-0 right-0 bottom-0 hidden opacity-0"
         />
-        <PiPlus /> Upload
+        <LuImageUp className="w-5 h-5" /> Add Photos
       </label>
     </div>
   );

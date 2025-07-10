@@ -22,10 +22,10 @@ export default function PrivacyDisclaimer() {
         <div>
           <h3 className="font-bold mb-2">Head&apos;s up!</h3>
           <p>
-            The photos you upload are completely private. Images are not stored
-            on any servers and are only processed in your browser. What you do
-            with any exported timelines, videos or images is entirely up to you,
-            of course 😜.
+            The photos you import are completely private. They are not stored on
+            any servers and are only processed in your browser. What you do with
+            any exported timelines, videos or photos is entirely up to you, of
+            course 😜.
           </p>
         </div>
         <button

@@ -1,8 +1,9 @@
 import React from "react";
-import { useDropzone } from "react-dropzone";
+import { Accept, useDropzone } from "react-dropzone";
 import useFrameUpload from "@/hooks/useFrameUpload";
 import cn from "@/utils/cn";
 import { useNotifications } from "@/providers/Notifications";
+import useProjectImport from "@/hooks/useProjectImport";
 
 type Props = {
   projectId: string;
@@ -10,6 +11,7 @@ type Props = {
   onSuccess?: (id: string) => void;
   onError?: (error: Error) => void;
 } & React.PropsWithChildren;
+
 export default function Dropzone({
   projectId,
   children,
@@ -18,10 +20,35 @@ export default function Dropzone({
   onError,
 }: Props) {
   const { addNotification } = useNotifications();
-  const { upload: onDrop } = useFrameUpload(projectId, {
+  const { upload: uploadFrames } = useFrameUpload(projectId, {
     onSuccess,
     onError,
   });
+
+  const { upload: uploadProject } = useProjectImport({
+    onSuccess,
+    onError,
+  });
+
+  const onDrop = (files: File[] | FileList) => {
+    if (
+      !projectId &&
+      files.length === 1 &&
+      files[0].type === "application/json"
+    ) {
+      uploadProject(files);
+    } else {
+      uploadFrames(files);
+    }
+  };
+
+  const accept: Accept = {
+    "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"],
+  };
+
+  if (!projectId) {
+    accept["application/json"] = [".json"];
+  }
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -31,13 +58,11 @@ export default function Dropzone({
       addNotification({
         message: `${files.length} file${
           files.length === 1 ? "" : "s"
-        } could not be uploaded. Only images are allowed.`,
+        } could not be imported. Only image files are allowed.`,
         type: "error",
       });
     },
-    accept: {
-      "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp"],
-    },
+    accept,
   });
 
   return (

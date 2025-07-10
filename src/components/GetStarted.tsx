@@ -1,5 +1,5 @@
 import useFrameUpload from "@/hooks/useFrameUpload";
-import { PiPlus } from "react-icons/pi";
+import { LuImageUp } from "react-icons/lu";
 
 type Props = {
   onSuccess?: (id: string) => void;
@@ -14,7 +14,7 @@ export default function GetStarted({ onSuccess }: Props) {
       <div className="text-center w-full">
         <h1 className="text-xl font-bold mb-2">👋 Hey there!</h1>
         <p>
-          Either drag some photos here or click the button below to upload some
+          Either drag some photos here or click the button below to import some
           photos and start your first timeline!
         </p>
       </div>
@@ -29,7 +29,7 @@ export default function GetStarted({ onSuccess }: Props) {
           onChange={onChange}
           className="absolute top-0 left-0 right-0 bottom-0 hidden opacity-0"
         />
-        <PiPlus /> Select Photos
+        <LuImageUp className="w-5 h-5" /> Add Photos
       </label>
     </div>
   );
