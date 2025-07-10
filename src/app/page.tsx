@@ -15,6 +15,7 @@ import { useState } from "react";
 import Preview from "@/components/modals/Preview";
 import SettingsMenu from "@/components/SettingsMenu";
 import Dropzone from "@/components/Dropzone";
+import PrivacyDisclaimer from "@/components/PrivacyDisclaimer";
 
 export default function Home() {
   const [playingProjectId, setPlayingProjectId] = useState<string | null>(null);
@@ -60,6 +61,7 @@ export default function Home() {
       />
       {!isPending && (
         <>
+          <PrivacyDisclaimer />
           {!projects.length && <GetStarted onSuccess={handleSuccess} />}
           {projects.length > 0 && (
             <div className="p-4 grid grid-cols-2 md:grid-cols-3 max-w-5xl mx-auto gap-4">

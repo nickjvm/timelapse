@@ -24,17 +24,18 @@ import Image from "@/components/Image";
 import Compare from "@/components/modals/Compare";
 import SortableItem from "@/components/SortableItem";
 import { SmartPointerSensor } from "@/components/PointerSensor";
-import useProject from "@/hooks/useProject";
 import Header from "@/components/Header";
 import EditFrameModal from "@/components/modals/EditFrame";
 import UploadFrame from "@/components/UploadFrame";
 import Dropzone from "@/components/Dropzone";
 import SettingsMenu from "@/components/SettingsMenu";
-
-import { useAppStore } from "@/store";
-import cn from "@/utils/cn";
 import EmptyProject from "@/components/EmptyProject";
+import PrivacyDisclaimer from "@/components/PrivacyDisclaimer";
+
+import useProject from "@/hooks/useProject";
+import { useAppStore } from "@/store";
 import { useNotifications } from "@/providers/Notifications";
+import cn from "@/utils/cn";
 
 export default function ProjectPage() {
   const [preview, setPreview] = useState(false);
@@ -131,6 +132,7 @@ export default function ProjectPage() {
             <SettingsMenu key="settings" />,
           ]}
         />
+        <PrivacyDisclaimer />
         {project.frames.length === 0 && <EmptyProject projectId={project.id} />}
         {project.frames.length > 0 && (
           <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 max-w-5xl mx-auto gap-2">
