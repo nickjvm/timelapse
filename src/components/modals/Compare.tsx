@@ -2,6 +2,7 @@
 import { motion, useMotionValue, useMotionValueEvent } from "motion/react";
 import { useRef, useState } from "react";
 import { MdDownload, MdDragIndicator } from "react-icons/md";
+import { HiOutlineSwitchHorizontal } from "react-icons/hi";
 
 import useFrame from "@/hooks/useFrame";
 import useDownloadImage from "@/hooks/useDownloadImage";
@@ -24,6 +25,7 @@ export default function Compare({
   onClose,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [frames, setFrames] = useState<string[]>([leftFrameId, rightFrameId]);
   const x = useMotionValue(100);
 
   const [mode, setMode] = useState<"side-by-side" | "overlaid">("side-by-side");
@@ -31,8 +33,8 @@ export default function Compare({
 
   useMotionValueEvent(x, "change", setCompareWidth);
 
-  const leftFrame = useFrame(projectId, leftFrameId);
-  const rightFrame = useFrame(projectId, rightFrameId);
+  const leftFrame = useFrame(projectId, frames[0]);
+  const rightFrame = useFrame(projectId, frames[1]);
 
   const { downloadImage, isPending } = useDownloadImage(containerRef);
 
@@ -43,28 +45,38 @@ export default function Compare({
       variant="dark"
       className="flex flex-col space-y-2 items-center justify-center"
     >
-      <div className="flex items-center justify-center mb-4 space">
+      <div className="flex items-center justify-center mb-4 space-x-2">
         <button
-          className={cn(
-            "text-black px-2 py-1 !rounded-l-full border border-white w-36 text-center justify-center",
-            mode === "side-by-side" ? "bg-white" : "text-white"
-          )}
-          onClick={() => setMode("side-by-side")}
+          title="Switch"
+          className="!rounded-full border border-white !p-2.5 hover:bg-white hover:text-black transition-colors"
+          onClick={() => setFrames((prev) => prev.toReversed())}
         >
-          Side by Side
+          <span className="sr-only">Switch</span>
+          <HiOutlineSwitchHorizontal className="w-5 h-5" />
         </button>
-        <button
-          className={cn(
-            "text-black px-2 py-1 !rounded-r-full border border-white w-36 text-center justify-center",
-            mode === "overlaid" ? "bg-white" : "text-white"
-          )}
-          onClick={() => setMode("overlaid")}
-        >
-          Overlaid
-        </button>
+        <div className="flex items-center justify-center">
+          <button
+            className={cn(
+              "text-black px-2 py-1 !rounded-l-full border border-white w-36 text-center justify-center",
+              mode === "side-by-side" ? "bg-white" : "text-white"
+            )}
+            onClick={() => setMode("side-by-side")}
+          >
+            Side by Side
+          </button>
+          <button
+            className={cn(
+              "text-black px-2 py-1 !rounded-r-full border border-white w-36 text-center justify-center",
+              mode === "overlaid" ? "bg-white" : "text-white"
+            )}
+            onClick={() => setMode("overlaid")}
+          >
+            Overlaid
+          </button>
+        </div>
         <button
           title="Download"
-          className="!rounded-full border border-white !p-2.5 hover:bg-white hover:text-black transition-colors ml-2"
+          className="!rounded-full border border-white !p-2.5 hover:bg-white hover:text-black transition-colors"
           onClick={() =>
             downloadImage(
               `compare-${leftFrame?.caption}-${rightFrame?.caption}`
@@ -82,30 +94,32 @@ export default function Compare({
         >
           <div>
             <Image
+              key={frames[0]}
               projectId={projectId}
-              id={leftFrameId}
+              id={frames[0]}
               ratio="aspect-[calc(3/4)]"
               className="w-xs sm:w-sm md:w-md"
               alt={leftFrame?.caption || ""}
-            />
-            <p className="absolute bottom-0 left-0 right-0 text-right md:text-lg text-shadow-lg font-bold text-white p-2">
-              {leftFrame?.caption}
-            </p>
+            >
+              <Image.Draggable />
+              <Image.Caption className="text-shadow-lg bg-transparent md:p-1.5 whitespace-nowrap text-right font-bold" />
+            </Image>
           </div>
           <div
             className="absolute top-0 left-0 overflow-hidden"
             style={{ width: compareWidth + "px" }}
           >
             <Image
+              key={frames[1]}
               projectId={projectId}
-              id={rightFrameId}
+              id={frames[1]}
               ratio="aspect-[calc(3/4)]"
               className="w-xs sm:w-sm md:w-md"
               alt={rightFrame?.caption || ""}
-            />
-            <p className="absolute bottom-0 left-0 right-0 text-left md:text-lg text-shadow-lg font-bold text-white p-2 whitespace-nowrap overflow-hidden">
-              {rightFrame?.caption}
-            </p>
+            >
+              <Image.Draggable />
+              <Image.Caption className="text-shadow-lg bg-transparent md:p-1.5 whitespace-nowrap text-left font-bold" />
+            </Image>
           </div>
           <motion.div
             drag
@@ -123,33 +137,51 @@ export default function Compare({
         <div
           ref={containerRef}
           className={cn(
-            "relative items-center justify-center grid grid-cols-2 gap-2 w-full max-w-3xl pb-12 pt-4 px-4",
+            "relative items-center justify-center grid grid-cols-2 gap-2 w-full max-w-3xl p-4",
             isPending && "bg-black/50"
           )}
         >
           <div className="relative">
             <Image
               projectId={projectId}
-              id={leftFrameId}
+              id={frames[0]}
               ratio="aspect-[calc(3/4)]"
               className="w-full"
               alt={leftFrame?.caption || ""}
-            />
-            <p className="absolute top-full left-0 right-0 text-center text-sm md:text-xl font-bold text-white p-2">
-              {leftFrame?.caption}
-            </p>
+            >
+              <Image.Draggable saveOnChange={false} />
+              <Image.Rotate
+                size="small"
+                className="absolute left-2 top-full right-2 mt-2 md:opacity-30 hover:opacity-100 transition-opacity"
+              />
+              <Image.Zoom
+                size="small"
+                direction="vertical"
+                className="absolute right-full top-2 bottom-2 mr-2 md:opacity-30 hover:opacity-100 transition-opacity"
+              />
+              <Image.Caption className="md:text-xs md:p-1.5" />
+            </Image>
           </div>
           <div className="relative">
             <Image
               projectId={projectId}
-              id={rightFrameId}
+              id={frames[1]}
               ratio="aspect-[calc(3/4)]"
               className="w-full"
               alt={rightFrame?.caption || ""}
-            />
-            <p className="absolute top-full left-0 right-0 text-center text-sm md:text-xl font-bold text-white p-2">
-              {rightFrame?.caption}
-            </p>
+            >
+              <Image.Draggable saveOnChange={false} />
+              <Image.Rotate
+                size="small"
+                className="absolute left-2 top-full right-2 mt-2 md:opacity-30 hover:opacity-100 transition-opacity"
+              />
+              <Image.Zoom
+                size="small"
+                direction="vertical"
+                className="absolute left-full top-2 bottom-2 ml-2 md:opacity-30 hover:opacity-100 transition-opacity"
+              />
+              <Image.Caption className="md:text-xs md:p-1.5" />
+            </Image>
           </div>
         </div>
       )}

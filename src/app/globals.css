@@ -37,3 +37,9 @@ button,
   @apply flex items-center gap-2 rounded p-4 py-2 transition;
   @apply text-sm md:text-base;
 }
+
+
+input[type=range].vertical {
+  writing-mode: vertical-lr;
+  direction: rtl;
+}

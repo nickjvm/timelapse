@@ -80,7 +80,7 @@ export default function Preview({ onClose, projectId }: Props) {
   return (
     <BaseModal open={true} onClose={onClose} variant="dark" className="flex">
       <div className="m-auto w-full max-w-md">
-        <div className="flex items-center justify-center mb-2 px-4">
+        <div className="flex items-center justify-center mb-2">
           <div>
             <DownloadVideo projectId={projectId} speed={playbackSpeed} />
           </div>
@@ -120,7 +120,7 @@ export default function Preview({ onClose, projectId }: Props) {
         <button
           type="button"
           onClick={() => setAutoplay(!autoplay)}
-          className="group relative "
+          className="group relative !px-0 pb-4"
         >
           <span className="z-10 absolute top-1/2 left-1/2 -translate-1/2 group-hover:opacity-100 opacity-50 transition-opacity">
             {!autoplay && <PiPlayFill className="text-white w-20 h-20" />}
@@ -131,11 +131,11 @@ export default function Preview({ onClose, projectId }: Props) {
             ratio="aspect-[calc(3/4)]"
             className="w-full"
             alt={frame.caption || ""}
-          />
+          >
+            <Image.Static />
+            <Image.Caption className="left-2 right-2 bottom-2 text-center text-white text-base md:text-xl font-bold text-shadow-md text-shadow-black bg-transparent" />
+          </Image>
         </button>
-        <p className="text-center text-white text-sm md:text-xl font-bold mt-2 mb-2">
-          {frame.caption || "\u00A0"}
-        </p>
         <input
           type="range"
           min={startingIndex}

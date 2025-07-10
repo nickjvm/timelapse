@@ -20,7 +20,7 @@ import {
 } from "@dnd-kit/sortable";
 
 import Preview from "@/components/modals/Preview";
-import FrameImage from "@/components/Image";
+import Image from "@/components/Image";
 import Compare from "@/components/modals/Compare";
 import SortableItem from "@/components/SortableItem";
 import { SmartPointerSensor } from "@/components/PointerSensor";
@@ -188,19 +188,24 @@ export default function ProjectPage() {
                           Compare
                         </label>
                       </div>
-                      <FrameImage
+                      <Image
                         projectId={project.id}
                         key={frame.image}
                         id={frame.id}
                         className="rounded"
                         ratio="aspect-[calc(3/4)]"
                         alt={frame.caption || ""}
-                      />
-                      {frame.caption && (
-                        <div className="group-hover:opacity-0 transition-opacity absolute bottom-0 left-0 w-full flex items-center justify-center p-1 bg-black/50 text-white text-xs line-clamp-1 overflow-ellipsis rounded-b">
-                          {frame.caption}
-                        </div>
-                      )}
+                      >
+                        <Image.Static />
+                        <Image.Caption
+                          className={cn(
+                            "group-hover:opacity-0 transition-opacity",
+                            "p-1 md:p-1",
+                            "rounded-none rounded-b",
+                            "absolute bottom-0 left-0 w-full md:text-xs line-clamp-1 overflow-ellipsis"
+                          )}
+                        />
+                      </Image>
                     </div>
                   </div>
                 </SortableItem>

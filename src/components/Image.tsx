@@ -24,30 +24,25 @@ import {
 import { MdOutlineRotateLeft, MdOutlineRotateRight } from "react-icons/md";
 import { RxText } from "react-icons/rx";
 
-import EditFrameOptions from "@/components/EditFrameOptions";
 import cn from "@/utils/cn";
 import { Frame, Project, useAppStore, useSettings } from "@/store";
 import useFrame from "@/hooks/useFrame";
 import useProject from "@/hooks/useProject";
 import useFrames from "@/hooks/useFrames";
-import useDownloadImage from "@/hooks/useDownloadImage";
 
-type AlterationsTypes = "rotate" | "zoom" | "caption" | null;
+export type AlterationsTypes = "rotate" | "zoom" | "caption" | null;
 
 type ImageContext = {
   frame: Frame;
   project: Project;
   ratio: string;
-  alterationType: AlterationsTypes;
-  setAlterationType: (alterationType: AlterationsTypes) => void;
   scale: MotionValue<number>;
   rotation: MotionValue<number>;
   position: {
     x: MotionValue<number>;
     y: MotionValue<number>;
   };
-  editing?: boolean;
-  downloadImage: (filename: string) => void;
+  containerRef: React.RefObject<HTMLDivElement | null>;
 };
 
 const ImageContext = createContext<ImageContext | undefined>(undefined);
@@ -65,18 +60,16 @@ type Props = {
   id: string;
   ratio: string;
   alt: string;
-  editing?: boolean;
-} & HTMLMotionProps<"div">;
+} & HTMLMotionProps<"div"> &
+  React.PropsWithChildren;
 
 export default function Image({
   projectId,
   id,
   ratio,
   className,
-  editing,
+  children,
 }: Props) {
-  const [alterationType, setAlterationType] = useState<AlterationsTypes>(null);
-
   const project = useProject(projectId);
   const frame = useFrame(projectId, id);
 
@@ -87,21 +80,19 @@ export default function Image({
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { downloadImage, isPending: isDownloadPending } =
-    useDownloadImage(containerRef);
-
   useEffect(() => {
     if (!frame) {
       return;
     }
 
     const pixelPosition = getPixelPosition(frame.position.x, frame.position.y);
+
     x.set(pixelPosition.x);
     y.set(pixelPosition.y);
     scale.set(frame.scale);
     rotation.set(frame.rotation);
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
-  }, [frame?.id, editing]);
+  }, [frame?.id]);
 
   // Convert percentage back to pixels for rendering
   const getPixelPosition = (xPercent: number, yPercent: number) => {
@@ -126,60 +117,41 @@ export default function Image({
         frame,
         project,
         ratio,
-        alterationType,
-        setAlterationType,
         scale,
         rotation,
-        editing,
-        downloadImage,
+        containerRef,
         position: {
           x,
           y,
         },
       }}
     >
-      <div
-        ref={containerRef}
-        className={cn(
-          ratio,
-          "overflow-hidden bg-neutral-200 relative rounded",
-          className
-        )}
-      >
-        <Image.Draggable containerRef={containerRef} />
-        {!isDownloadPending && <Image.Ghost />}
+      <div className={cn("overflow-hidden rounded w-full", ratio, className)}>
+        {children}
       </div>
-      {editing && (
-        <div className="absolute right-2 top-2">
-          <EditFrameOptions />
-        </div>
-      )}
-      <Image.Caption />
-      <Image.Zoom />
-      <Image.Rotate />
     </ImageContext.Provider>
   );
 }
 
+type ImageDraggableProps = {
+  saveOnChange?: boolean;
+};
 Image.Draggable = function ImageDraggable({
-  containerRef,
-}: {
-  containerRef: React.RefObject<HTMLDivElement | null>;
-}) {
+  saveOnChange = true,
+}: ImageDraggableProps) {
   const {
     project,
     frame,
-    editing,
     position: { x, y },
     scale,
     rotation,
+    containerRef,
+    ratio,
   } = useImageContext();
 
   const [dragging, setDragging] = useState(false);
   const controls = useAnimationControls();
   const { updateFrame } = useAppStore();
-
-  const imageRef = useRef<HTMLImageElement>(null);
 
   const [constraints, setConstraints] = useState({
     top: 0,
@@ -212,7 +184,7 @@ Image.Draggable = function ImageDraggable({
   };
 
   const onReposition = () => {
-    if (!editing) {
+    if (!saveOnChange) {
       return;
     }
     const pixelX = x.get();
@@ -234,11 +206,18 @@ Image.Draggable = function ImageDraggable({
   useMotionValueEvent(rotation, "change", onReposition);
   useMotionValueEvent(scale, "change", onReposition);
 
-  if (editing) {
-    return (
+  return (
+    <div
+      ref={containerRef}
+      className={cn(
+        ratio,
+        "w-full overflow-hidden bg-neutral-200 relative rounded"
+      )}
+    >
       <motion.div
+        ref={containerRef}
         className={cn("cursor-grab", dragging && "cursor-grabbing")}
-        drag={editing}
+        drag
         style={{ x, y, scale, rotate: rotation }}
         dragTransition={{
           bounceStiffness: 1000,
@@ -251,158 +230,255 @@ Image.Draggable = function ImageDraggable({
         onDragEnd={() => setDragging(false)}
       >
         <img
-          ref={imageRef}
           src={frame.image}
           alt={frame.caption || ""}
           className="w-full h-auto pointer-events-none"
         />
       </motion.div>
-    );
-  }
+    </div>
+  );
+};
+
+Image.Static = function ImageStatic({
+  className,
+  frameIndex,
+}: {
+  className?: string;
+  frameIndex?: number;
+}) {
+  const { project, frame, containerRef, ratio } = useImageContext();
+  const ghostFrame = project.frames[frameIndex ?? -1] || frame;
 
   return (
-    <img
-      src={frame.image}
-      alt={frame.caption || ""}
-      className="w-full h-auto relative"
-      style={{
-        left: `${frame.position.x * 100}%`,
-        top: `${frame.position.y * 100}%`,
-        transform: `scale(${frame.scale}) rotate(${frame.rotation}deg)`,
-      }}
-    />
+    <div
+      ref={containerRef}
+      className={cn(
+        ratio,
+        "w-full overflow-hidden bg-neutral-200 relative rounded",
+        className
+      )}
+    >
+      <img
+        className="w-full h-auto relative"
+        src={ghostFrame.image}
+        alt={ghostFrame.caption || ""}
+        style={{
+          left: `${ghostFrame.position.x * 100}%`,
+          top: `${ghostFrame.position.y * 100}%`,
+          transform: `scale(${ghostFrame.scale}) rotate(${ghostFrame.rotation}deg)`,
+        }}
+      />
+    </div>
   );
 };
 
 Image.Ghost = function ImageGhost() {
-  const { project, frame, editing } = useImageContext();
+  const { project, frame } = useImageContext();
   const { ghost } = useSettings();
   const { frames } = useFrames(project.id);
   const prevFrameIndex = frames.findIndex((f) => f.id === frame.id) - 1;
 
-  if (!editing || !ghost || prevFrameIndex < 0) {
+  if (!ghost || prevFrameIndex < 0) {
     return null;
   }
 
   return (
-    <Image
-      projectId={project.id}
-      id={frames[prevFrameIndex].id}
-      ratio="aspect-[calc(3/4)]"
-      alt="previous frame ghost"
-      className="w-full absolute top-0 opacity-30 pointer-events-none left-1/2 -translate-x-1/2"
+    <Image.Static
+      frameIndex={prevFrameIndex}
+      className="opacity-30 top-0 left-0 absolute pointer-events-none"
     />
   );
 };
 
-Image.Caption = function ImageCaption() {
-  const { project, frame, alterationType, setAlterationType, editing } =
-    useImageContext();
+Image.Caption = function ImageCaption({
+  editable = false,
+  className,
+}: {
+  editable?: boolean;
+  className?: string;
+}) {
+  const [editing, setEditing] = useState(false);
+  const { project, frame } = useImageContext();
   const { updateFrame } = useAppStore();
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
     updateFrame(project.id, frame.id, {
       caption: event.target.value,
     });
-    setAlterationType(null);
+    setEditing(false);
   };
 
-  if (!editing) {
-    return null;
+  if (editable) {
+    if (!editing && !frame.caption) {
+      return (
+        <button
+          onClick={() => setEditing(true)}
+          className="absolute bottom-2 left-2  bg-black/50 text-white !p-2.5 text-lg !rounded-full text-center hover:bg-black/75 transition-colors"
+        >
+          <RxText className="w-7 h-7" />
+        </button>
+      );
+    } else {
+      return (
+        <label>
+          <span className="sr-only">Add a caption</span>
+          <input
+            placeholder="Add a caption..."
+            type="text"
+            autoFocus={!frame.caption}
+            defaultValue={frame.caption || ""}
+            onBlur={onChange}
+            className="absolute bottom-2 left-2 right-2 bg-black/75 text-white p-2 md:p-2.5 px-4 text-xs md:text-lg rounded-full text-center"
+          />
+        </label>
+      );
+    }
   }
 
-  if (!alterationType && !frame.caption) {
+  if (frame.caption) {
     return (
-      <button
-        onClick={() => setAlterationType("caption")}
-        className="absolute bottom-2 left-2  bg-black/50 text-white !p-2 text-lg !rounded-full text-center hover:bg-black/75 transition-colors"
+      <div
+        className={cn(
+          "absolute bottom-2 left-2 right-2 bg-black/75 text-white p-2 md:p-2.5 px-4 text-xs md:text-lg rounded-full text-center",
+          className
+        )}
       >
-        <RxText className="w-7 h-7" />
-      </button>
-    );
-  } else if (
-    alterationType === "caption" ||
-    (!alterationType && frame.caption)
-  ) {
-    return (
-      <label>
-        <span className="sr-only">Add a caption</span>
-        <input
-          placeholder="Add a caption..."
-          type="text"
-          autoFocus={!frame.caption}
-          defaultValue={frame.caption || ""}
-          onBlur={onChange}
-          className="absolute bottom-2 left-2 right-2 bg-black/75 text-white p-2 md:p-2.5 px-4 text-xs md:text-lg rounded-full text-center"
-        />
-      </label>
+        {frame.caption}
+      </div>
     );
   }
+
+  return "null";
 };
 
-Image.Zoom = function ImageZoom() {
-  const { alterationType, scale, editing } = useImageContext();
-
-  if (!editing || alterationType !== "zoom") {
-    return null;
-  }
+type ZoomRotateProps = {
+  direction?: "horizontal" | "vertical";
+  className?: string;
+  size?: "small" | "medium" | "large";
+};
+Image.Zoom = function ImageZoom({
+  direction = "horizontal",
+  className,
+  size = "medium",
+}: ZoomRotateProps) {
+  const { scale } = useImageContext();
 
   return (
-    <div className="flex items-center md:gap-4 mt-3 absolute bottom-2 left-2 right-2 bg-black/75 rounded-full">
+    <div
+      className={cn(
+        "flex items-center md:gap-4 bg-black/75 rounded-full",
+        direction === "vertical" && "flex-col",
+        className
+      )}
+    >
       <button
         onClick={() => scale.set(scale.get() - 0.1)}
-        className="!rounded-l-full p-1 cursor-pointer text-white hover:text-black hover:bg-white/75 transition-colors"
+        className={cn(
+          "!p-1 cursor-pointer text-white hover:text-black hover:bg-white/75 transition-colors",
+          direction === "vertical" ? "!rounded-t-full" : "!rounded-l-full"
+        )}
       >
-        <HiMiniMagnifyingGlassMinus className="w-6 h-6 md:w-8 md:h-8" />
+        <HiMiniMagnifyingGlassMinus
+          className={cn(
+            size === "small" && "w-4 h-4 md:w-6 md:h-6",
+            size === "medium" && "w-6 h-6 md:w-8 md:h-8",
+            size === "large" && "w-8 h-8 md:w-10 md:h-10"
+          )}
+        />
       </button>
       <input
         type="range"
         min=".5"
         max="3"
         step=".01"
-        value={scale.get()}
-        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+        defaultValue={scale.get()}
+        className={cn(
+          direction,
+          "grow w-full bg-gray-200 rounded-lg appearance-none cursor-pointer",
+          size === "large" && direction === "horizontal" ? "h-2" : "h-1.5",
+          direction === "vertical" ? "h-full" : "w-full",
+          size === "large" && direction === "vertical" ? "w-2" : "w-1.5"
+        )}
         onChange={(e) => scale.set(parseFloat(e.target.value))}
       />
       <button
         onClick={() => scale.set(scale.get() + 0.1)}
-        className="!rounded-r-full p-1 cursor-pointer text-white hover:text-black hover:bg-white/75 transition-colors"
+        className={cn(
+          "!p-1 cursor-pointer text-white hover:text-black hover:bg-white/75 transition-colors",
+          direction === "vertical" ? "!rounded-b-full" : "!rounded-r-full"
+        )}
       >
-        <HiMiniMagnifyingGlassPlus className="w-6 h-6 md:w-8 md:h-8" />
+        <HiMiniMagnifyingGlassPlus
+          className={cn(
+            size === "small" && "w-4 h-4 md:w-6 md:h-6",
+            size === "medium" && "w-6 h-6 md:w-8 md:h-8",
+            size === "large" && "w-8 h-8 md:w-10 md:h-10"
+          )}
+        />
       </button>
     </div>
   );
 };
 
-Image.Rotate = function ImageRotate() {
-  const { alterationType, rotation, editing } = useImageContext();
-
-  if (!editing || alterationType !== "rotate") {
-    return null;
-  }
+Image.Rotate = function ImageRotate({
+  direction = "horizontal",
+  className,
+  size = "medium",
+}: ZoomRotateProps) {
+  const { rotation } = useImageContext();
 
   return (
-    <div className="flex items-center md:gap-4 mt-3 absolute bottom-2 left-2 right-2 bg-black/75 rounded-full">
+    <div
+      className={cn(
+        "flex items-center md:gap-4 mt-3 bg-black/75 rounded-full",
+        direction === "vertical" && "flex-col",
+        className
+      )}
+    >
       <button
         onClick={() => rotation.set(rotation.get() - 1)}
-        className="!rounded-l-full p-1 cursor-pointer text-white hover:text-black hover:bg-white/75 transition-colors"
+        className={cn(
+          "!p-1 cursor-pointer text-white hover:text-black hover:bg-white/75 transition-colors",
+          direction === "vertical" ? "!rounded-t-full" : "!rounded-l-full"
+        )}
       >
-        <MdOutlineRotateLeft className="w-6 h-6 md:w-8 md:h-8" />
+        <MdOutlineRotateLeft
+          className={cn(
+            size === "small" && "w-4 h-4 md:w-6 md:h-6",
+            size === "medium" && "w-6 h-6 md:w-8 md:h-8",
+            size === "large" && "w-8 h-8 md:w-10 md:h-10"
+          )}
+        />
       </button>
       <input
         type="range"
         min="-180"
         max="180"
         step="1"
-        value={rotation.get()}
-        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+        defaultValue={rotation.get()}
+        className={cn(
+          direction,
+          "grow w-full bg-gray-200 rounded-lg appearance-none cursor-pointer",
+          size === "large" && direction === "horizontal" ? "h-2" : "h-1.5",
+          direction === "vertical" ? "h-full" : "w-full",
+          size === "large" && direction === "vertical" ? "w-2" : "w-1.5"
+        )}
         onChange={(e) => rotation.set(parseFloat(e.target.value))}
       />
       <button
         onClick={() => rotation.set(rotation.get() + 1)}
-        className="!rounded-r-full p-1 cursor-pointer text-white hover:text-black hover:bg-white/75 transition-colors"
+        className={cn(
+          "!p-1 cursor-pointer text-white hover:text-black hover:bg-white/75 transition-colors",
+          direction === "vertical" ? "!rounded-b-full" : "!rounded-r-full"
+        )}
       >
-        <MdOutlineRotateRight className="w-6 h-6 md:w-8 md:h-8" />
+        <MdOutlineRotateRight
+          className={cn(
+            size === "small" && "w-4 h-4 md:w-6 md:h-6",
+            size === "medium" && "w-6 h-6 md:w-8 md:h-8",
+            size === "large" && "w-8 h-8 md:w-10 md:h-10"
+          )}
+        />
       </button>
     </div>
   );

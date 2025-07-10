@@ -9,23 +9,21 @@ import { useAppStore, useSettings } from "@/store";
 import cn from "@/utils/cn";
 import { flipImage } from "@/utils/flipImage";
 import { useNotifications } from "@/providers/Notifications";
-import { useImageContext } from "@/components/Image";
+import { AlterationsTypes, useImageContext } from "@/components/Image";
+import useDownloadImage from "@/hooks/useDownloadImage";
 
-export default function EditFrameOptions() {
-  const {
-    project,
-    frame,
-    alterationType,
-    setAlterationType,
-    position,
-    scale,
-    rotation,
-    downloadImage,
-  } = useImageContext();
+type Props = {
+  onClick: (alterationType: AlterationsTypes) => void;
+  alterationType: AlterationsTypes;
+};
+export default function EditFrameOptions({ onClick, alterationType }: Props) {
+  const { project, frame, position, scale, rotation, containerRef } =
+    useImageContext();
   const settings = useSettings();
   const { updateSettings, updateFrame, updateProject } = useAppStore();
   const { addNotification } = useNotifications();
   const frameIndex = project.frames.findIndex((f) => f.id === frame.id);
+  const { downloadImage } = useDownloadImage(containerRef);
 
   async function onFlip(direction: "horizontal" | "vertical") {
     const flippedImage = await flipImage(frame.image, direction);
@@ -79,18 +77,14 @@ export default function EditFrameOptions() {
       <OptionButton
         label="Rotate"
         icon={MdOutlineRotateLeft}
-        onClick={() =>
-          setAlterationType(alterationType === "rotate" ? null : "rotate")
-        }
+        onClick={() => onClick(alterationType === "rotate" ? null : "rotate")}
         isActive={alterationType === "rotate"}
         color="blue"
       />
       <OptionButton
         label="Zoom In/Out"
         icon={HiOutlineMagnifyingGlass}
-        onClick={() =>
-          setAlterationType(alterationType === "zoom" ? null : "zoom")
-        }
+        onClick={() => onClick(alterationType === "zoom" ? null : "zoom")}
         isActive={alterationType === "zoom"}
         color="blue"
       />

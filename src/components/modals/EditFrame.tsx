@@ -1,11 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 import useFrames from "@/hooks/useFrames";
-import Image from "@/components/Image";
 import useFrame from "@/hooks/useFrame";
 
 import { BaseModal } from "@/components/modals/Base";
+import Image, { AlterationsTypes } from "@/components/Image";
+import EditFrameOptions from "@/components/EditFrameOptions";
 
 type Props = {
   onClose: () => void;
@@ -22,6 +23,7 @@ export default function EditFrameModal({
 }: Props) {
   const { frames } = useFrames(projectId);
 
+  const [alterationType, setAlterationType] = useState<AlterationsTypes>(null);
   const frame = useFrame(projectId, frameId);
   const frameIndex = frames.findIndex((frame) => frame.id === frameId);
   const prevFrameIndex = frameIndex - 1;
@@ -94,11 +96,28 @@ export default function EditFrameModal({
           key={frameId}
           id={frameId}
           ratio="aspect-[calc(3/4)]"
-          className="m-auto w-full lg:w-xl my-auto"
+          className="m-auto lg:w-xl my-auto"
           projectId={projectId}
           alt={frame?.caption || `${projectId} frame ${frameIndex + 1}`}
-          editing
-        />
+        >
+          <div className="relative">
+            <Image.Draggable />
+            <Image.Ghost />
+          </div>
+          <div className="absolute right-2 top-2">
+            <EditFrameOptions
+              onClick={setAlterationType}
+              alterationType={alterationType}
+            />
+          </div>
+          {!alterationType && <Image.Caption editable />}
+          {alterationType === "zoom" && (
+            <Image.Zoom className="absolute left-2 bottom-2 right-2 p-1" />
+          )}
+          {alterationType === "rotate" && (
+            <Image.Rotate className="absolute left-2 bottom-2 right-2 p-1" />
+          )}
+        </Image>
       </div>
     </BaseModal>
   );

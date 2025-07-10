@@ -3,14 +3,17 @@ import { useNotifications } from "@/providers/Notifications";
 import { domToPng } from "modern-screenshot";
 
 export default function useDownloadImage(
-  containerRef: React.RefObject<HTMLDivElement | null>
+  containerRef: React.RefObject<HTMLDivElement | HTMLImageElement | null>
 ) {
   const { addNotification } = useNotifications();
   const [isBuilding, setIsBuilding] = useState(false);
   const filenameRef = useRef("");
 
   useEffect(() => {
-    if (!isBuilding || !containerRef.current) return;
+    if (!isBuilding || !containerRef.current) {
+      setIsBuilding(false);
+      return;
+    }
 
     const buildAndDownload = async () => {
       try {

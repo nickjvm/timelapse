@@ -91,10 +91,10 @@ export default function DownloadVideo({
               projectId={projectId}
               ratio="aspect-[calc(3/4)]"
               alt={frame.caption || ""}
-            />
-            <div className="text-center text-white absolute bg-black/50 text-xs p-2 rounded-full left-1 right-1 bottom-1">
-              {frame.caption}
-            </div>
+            >
+              <Image.Static />
+              <Image.Caption className="left-2 right-2 bottom-2 text-center text-white text-base md:text-xl font-bold text-shadow-md text-shadow-black bg-transparent" />
+            </Image>
           </div>
         ))}
       </div>

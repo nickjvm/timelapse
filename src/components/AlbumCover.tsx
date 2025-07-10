@@ -26,7 +26,9 @@ export default function AlbumCover({ projectId }: Props) {
           ratio="aspect-[calc(3/4)]"
           id={coverFrame.id}
           alt={coverFrame.caption || `${project.name} cover image`}
-        />
+        >
+          <Image.Static />
+        </Image>
       ) : (
         <div className="w-full aspect-[calc(3/4)] bg-neutral-100 rounded z-0 border border-neutral-400 flex items-center justify-center text-neutral-300">
           <PiNoteBlank className="w-12 h-12" />
