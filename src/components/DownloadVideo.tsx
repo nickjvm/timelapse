@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { domToPng } from "modern-screenshot";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { IoMdCloudDownload } from "react-icons/io";
 
@@ -9,6 +8,7 @@ import Image from "@/components/Image";
 import { PLAYBACK_SPEEDS } from "@/store";
 import { useNotifications } from "@/providers/Notifications";
 import cn from "@/utils/cn";
+import buildPng from "@/utils/htmlToPng";
 
 export default function DownloadVideo({
   projectId,
@@ -31,7 +31,7 @@ export default function DownloadVideo({
     try {
       const images = [];
       for (const frame of visibleFrames) {
-        const dataUrl = await domToPng(
+        const dataUrl = await buildPng(
           document.querySelector(`#frame-${frame.id}`)!
         );
         images.push({

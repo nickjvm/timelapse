@@ -428,14 +428,14 @@ Image.Grid = function ImageGrid() {
     <>
       <div
         className={cn(
-          "absolute -inset-px pointer-events-none bg-size-[calc(100%/3)_calc(100%/3)]",
-          "bg-gradient-to-r from-black/20 from-[1px] to-transparent to-[1px]"
+          "absolute -inset-px pointer-events-none bg-size-[calc(100%/3)_calc(100%/3)] opacity-30",
+          "bg-gradient-to-r from-white from-[1px] to-transparent to-[1px] mix-blend-difference"
         )}
       />
       <div
         className={cn(
-          "absolute -inset-px pointer-events-none bg-size-[calc(100%/3)_calc(100%/3)]",
-          "bg-gradient-to-b from-black/20 from-[1px] to-transparent to-[1px]"
+          "absolute -inset-px pointer-events-none bg-size-[calc(100%/3)_calc(100%/3)] opacity-30",
+          "bg-gradient-to-b from-white from-[1px] to-transparent to-[1px] mix-blend-difference"
         )}
       />
     </>

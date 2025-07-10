@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNotifications } from "@/providers/Notifications";
-import { domToPng } from "modern-screenshot";
+import buildPng from "@/utils/htmlToPng";
 
 export default function useDownloadImage(
   containerRef: React.RefObject<HTMLDivElement | HTMLImageElement | null>
@@ -17,7 +17,7 @@ export default function useDownloadImage(
 
     const buildAndDownload = async () => {
       try {
-        const dataUrl = await domToPng(containerRef.current!);
+        const dataUrl = await buildPng(containerRef.current as HTMLElement);
         const link = document.createElement("a");
         link.href = dataUrl;
         link.download = `${filenameRef.current || Date.now()}.png`;
