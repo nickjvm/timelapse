@@ -1,11 +1,15 @@
 import { ElementType } from "react";
-import { BsSymmetryHorizontal, BsSymmetryVertical } from "react-icons/bs";
+import {
+  BsGrid3X3,
+  BsSymmetryHorizontal,
+  BsSymmetryVertical,
+} from "react-icons/bs";
 import { HiOutlineMagnifyingGlass } from "react-icons/hi2";
 import { MdDelete, MdDownload, MdOutlineRotateLeft } from "react-icons/md";
 import { RiGhost2Fill, RiGhost2Line } from "react-icons/ri";
 import { RxReset } from "react-icons/rx";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
-import { useAppStore, useSettings } from "@/store";
+import { AppStore, useAppStore, useSettings } from "@/store";
 import cn from "@/utils/cn";
 import { flipImage } from "@/utils/flipImage";
 import { useNotifications } from "@/providers/Notifications";
@@ -66,9 +70,9 @@ export default function EditFrameOptions({ onClick, alterationType }: Props) {
     });
   };
 
-  const onToggleGhost = () => {
+  const toggleSetting = (setting: keyof AppStore["settings"]) => () => {
     updateSettings({
-      ghost: !settings.ghost,
+      [setting]: !settings[setting],
     });
   };
 
@@ -108,12 +112,20 @@ export default function EditFrameOptions({ onClick, alterationType }: Props) {
       />
       {frameIndex > 0 && (
         <OptionButton
-          label={settings.ghost ? "Hide Ghost Frame" : "Show Ghost Frame"}
+          label="Toggle frame ghost"
           icon={settings.ghost ? RiGhost2Fill : RiGhost2Line}
-          onClick={onToggleGhost}
+          isActive={settings.ghost}
+          onClick={toggleSetting("ghost")}
           color="purple"
         />
       )}
+      <OptionButton
+        label="Toggle Grid"
+        icon={BsGrid3X3}
+        onClick={toggleSetting("grid")}
+        isActive={settings.grid}
+        color="blue"
+      />
       <OptionButton
         label="Revert Changes"
         icon={RxReset}
@@ -150,12 +162,12 @@ function OptionButton({
   isActive?: boolean;
 }) {
   // tailwind hack to get dynamic colors to render
-  // group-hover:bg-blue-600
-  // group-hover:bg-purple-600
-  // group-hover:bg-red-600
-  // bg-red-600
-  // bg-blue-600
-  // bg-purple-600
+  // group-hover:bg-blue-600/75
+  // group-hover:bg-purple-600/75
+  // group-hover:bg-red-600/75
+  // !bg-red-600
+  // !bg-blue-600
+  // !bg-purple-600
   // text-red-600
   // text-blue-600
   // text-purple-600
@@ -172,8 +184,8 @@ function OptionButton({
       </span>
       <div
         className={cn(
-          `rounded-full group-hover:bg-${color}-600 p-2 md:p-3 hover:text-white relative`,
-          isActive && `bg-${color}-600 text-white`
+          `rounded-full bg-transparent group-hover:bg-${color}-600/75 p-2 md:p-3 hover:text-white relative transition-colors`,
+          isActive && `!bg-${color}-600 text-white`
         )}
       >
         <Icon className="w-4 h-4 md:w-6 md:h-6" />

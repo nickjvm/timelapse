@@ -4,6 +4,7 @@ import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import useFrames from "@/hooks/useFrames";
 import useFrame from "@/hooks/useFrame";
 
+import { useSettings } from "@/store";
 import { BaseModal } from "@/components/modals/Base";
 import Image, { AlterationsTypes } from "@/components/Image";
 import EditFrameOptions from "@/components/EditFrameOptions";
@@ -22,6 +23,7 @@ export default function EditFrameModal({
   frameId,
 }: Props) {
   const { frames } = useFrames(projectId);
+  const settings = useSettings();
 
   const [alterationType, setAlterationType] = useState<AlterationsTypes>(null);
   const frame = useFrame(projectId, frameId);
@@ -102,7 +104,8 @@ export default function EditFrameModal({
         >
           <div className="relative">
             <Image.Draggable />
-            <Image.Ghost />
+            {settings.ghost && <Image.Ghost />}
+            {settings.grid && <Image.Grid />}
           </div>
           <div className="absolute right-2 top-2">
             <EditFrameOptions

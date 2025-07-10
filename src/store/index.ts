@@ -40,6 +40,7 @@ export interface AppState {
   settings: {
     ghost: boolean;
     playbackSpeed: keyof typeof PLAYBACK_SPEEDS;
+    grid: boolean;
   };
 }
 
@@ -66,7 +67,8 @@ export type AppStore = AppState & AppActions;
 const initialState: AppState = {
   projects: [],
   settings: {
-    ghost: false,
+    grid: true,
+    ghost: true,
     playbackSpeed: "1x",
   },
 };

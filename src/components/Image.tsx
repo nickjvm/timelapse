@@ -25,7 +25,7 @@ import { MdOutlineRotateLeft, MdOutlineRotateRight } from "react-icons/md";
 import { RxText } from "react-icons/rx";
 
 import cn from "@/utils/cn";
-import { Frame, Project, useAppStore, useSettings } from "@/store";
+import { Frame, Project, useAppStore } from "@/store";
 import useFrame from "@/hooks/useFrame";
 import useProject from "@/hooks/useProject";
 import useFrames from "@/hooks/useFrames";
@@ -215,7 +215,6 @@ Image.Draggable = function ImageDraggable({
       )}
     >
       <motion.div
-        ref={containerRef}
         className={cn("cursor-grab", dragging && "cursor-grabbing")}
         drag
         style={{ x, y, scale, rotate: rotation }}
@@ -242,16 +241,18 @@ Image.Draggable = function ImageDraggable({
 Image.Static = function ImageStatic({
   className,
   frameIndex,
+  ref,
 }: {
   className?: string;
   frameIndex?: number;
+  ref?: React.RefObject<HTMLDivElement | null>;
 }) {
   const { project, frame, containerRef, ratio } = useImageContext();
   const ghostFrame = project.frames[frameIndex ?? -1] || frame;
 
   return (
     <div
-      ref={containerRef}
+      ref={ref ?? containerRef}
       className={cn(
         ratio,
         "w-full overflow-hidden bg-neutral-200 relative rounded",
@@ -274,16 +275,18 @@ Image.Static = function ImageStatic({
 
 Image.Ghost = function ImageGhost() {
   const { project, frame } = useImageContext();
-  const { ghost } = useSettings();
   const { frames } = useFrames(project.id);
   const prevFrameIndex = frames.findIndex((f) => f.id === frame.id) - 1;
 
-  if (!ghost || prevFrameIndex < 0) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  if (prevFrameIndex < 0) {
     return null;
   }
 
   return (
     <Image.Static
+      ref={ref}
       frameIndex={prevFrameIndex}
       className="opacity-30 top-0 left-0 absolute pointer-events-none"
     />
@@ -417,6 +420,25 @@ Image.Zoom = function ImageZoom({
         />
       </button>
     </div>
+  );
+};
+
+Image.Grid = function ImageGrid() {
+  return (
+    <>
+      <div
+        className={cn(
+          "absolute -inset-px pointer-events-none bg-size-[calc(100%/3)_calc(100%/3)]",
+          "bg-gradient-to-r from-black/20 from-[1px] to-transparent to-[1px]"
+        )}
+      />
+      <div
+        className={cn(
+          "absolute -inset-px pointer-events-none bg-size-[calc(100%/3)_calc(100%/3)]",
+          "bg-gradient-to-b from-black/20 from-[1px] to-transparent to-[1px]"
+        )}
+      />
+    </>
   );
 };
 
